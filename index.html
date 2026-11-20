@@ -510,6 +510,9 @@ footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
 @media (min-width:1500px){.wrap,.promo .in,header.top .in,footer.site .in,.legal,.bar .in{max-width:1360px}}
 @media (min-width:1900px){header.top,.promo,main.wrap,footer.site,.bar{zoom:1.2}}
 @media (min-width:2300px){header.top,.promo,main.wrap,footer.site,.bar{zoom:1.4}}
+.card.thanks{border-left:4px solid #b5763a;background:linear-gradient(135deg,var(--surface) 60%,var(--accent-soft))}
+.card.thanks h2{font-size:22px;color:var(--accent);text-transform:none;letter-spacing:0}
+.card.thanks p{margin:0;font-size:15.5px}.card.thanks .sig{color:var(--muted);font-size:14px}.card.thanks .sig i{color:#b5763a}
 </style>
 <script>
 (function(){
@@ -1431,6 +1434,7 @@ function placeOrder(){
   m.querySelector("#mGo").addEventListener("click",()=>{close();submitOrder()});
   setTimeout(()=>{try{m.querySelector("#mBack").focus()}catch(e){}},50);
 }
+const DANKE={h:"Danke, dass Sie bei uns angeklopft haben!",t:"Ihre Bestellung ist bei uns in besten Händen, und wir freuen uns darauf, Ihr Zuhause bald mit unseren Türen schöner zu machen.",g:"Ihre Schreinerei Altmühltal",s:"Bei uns sind Sie an der richtigen Tür."};
 function outro(cb){
   const intro=document.getElementById("intro");if(RM||!intro){cb();return}
   const b3=intro.querySelector(".isign .b3"),hint=document.getElementById("ihint"),lt=intro.querySelector(".ilight span");
@@ -1439,7 +1443,7 @@ function outro(cb){
   void intro.offsetWidth;intro.classList.remove("notrans");
   setTimeout(()=>intro.classList.remove("open"),500);
   setTimeout(()=>{intro.classList.add("lock");hint.textContent="Tür wird abgeschlossen …"},1900);
-  setTimeout(()=>{hint.textContent="Bestellung abgeschickt ✓";intro.classList.add("sent")},3500);
+  setTimeout(()=>{hint.textContent="Bestellung abgeschickt ✓";b3.textContent=DANKE.h;intro.classList.add("sent")},3500);
   setTimeout(()=>{cb();intro.classList.add("gone")},4500);
   setTimeout(()=>{intro.hidden=true;intro.className="intro";document.documentElement.classList.remove("locked")},4900);
 }
@@ -1457,6 +1461,7 @@ function renderDone(){
   app.innerHTML=`<div class="view narrow">
   ${coSteps(3)}
   <section class="block okhead"><svg class="okb" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="M19 33l9 9 17-18"/></svg><div><div class="eyebrow">Bestellung eingegangen</div><h1>Vielen Dank für deine Bestellung</h1></div></section>
+  <section class="block card thanks"><h2>${DANKE.h}</h2><p>${DANKE.t}</p><p class="sig">${DANKE.g} – <i>${DANKE.s}</i></p></section>
   <div class="lane" aria-hidden="true"><svg class="truck" viewBox="0 0 120 50"><rect x="2" y="6" width="70" height="32" rx="3" fill="var(--accent)"/><text x="37" y="21" text-anchor="middle" font-size="8" font-weight="700" fill="var(--accent-ink)" font-family="Barlow, sans-serif">SCHREINEREI</text><text x="37" y="31" text-anchor="middle" font-size="9" font-weight="700" fill="var(--accent-ink)" font-family="Barlow, sans-serif">ALTMÜHLTAL</text><path d="M74 16h22l14 12v10H74z" fill="var(--accent)"/><path d="M80 20h14l8 7H80z" fill="var(--surface)"/><circle cx="20" cy="40" r="7" fill="var(--ink)"/><circle cx="20" cy="40" r="2.5" fill="var(--surface)"/><circle cx="94" cy="40" r="7" fill="var(--ink)"/><circle cx="94" cy="40" r="2.5" fill="var(--surface)"/></svg><span class="lt">Lieferung in ${lieferzeit()}</span></div>
   <section class="block card">
     <dl class="kv">
@@ -1518,6 +1523,11 @@ async function buildPdf(){
    "Aufmaß vor Ort und Öffnungsrichtungen mit dem Kunden geklärt: "+(S.aufmass?"ja":"nein"),
    "Kontrollen: Türliste "+S.listChecks+"×, Positionen "+S.doorChecks+"×, Endprüfung "+o.checks+"×. Bei Bestellung "+(o.errs?o.errs+" offene Fehler"+(o.fehler.length?" (Pos. "+o.fehler.join(", ")+")":"")+(o.fehltTueren?", Türen fehlen":""):"keine offenen Fehler")+"."]
    .forEach(n=>{const l=doc.splitTextToSize("• "+n,W-2*M-90);doc.text(l,M,yn);yn+=l.length*4});
+  {let ty=Math.max(y,yn)+5;const tl=doc.splitTextToSize(DANKE.t,W-2*M-12);const bh=16+tl.length*4.2;
+   if(ty+bh>H-10){foot();doc.addPage();head("Bestellbestätigung");ty=28}
+   doc.setFillColor(220,235,229);doc.roundedRect(M,ty,W-2*M,bh,2,2,"F");doc.setTextColor(31,77,63);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text(DANKE.h,M+6,ty+7);
+   doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(29,38,34);doc.text(tl,M+6,ty+12.5);
+   doc.setFontSize(8.5);doc.setTextColor(31,77,63);doc.text(DANKE.g+" – ",M+6,ty+bh-3.5);doc.setFont("helvetica","italic");doc.text(DANKE.s,M+6+doc.getTextWidth(DANKE.g+" – "),ty+bh-3.5);doc.setTextColor(29,38,34);doc.setFont("helvetica","normal")}
   foot();
   /* Aufmaßblatt im Händlerformat */
   doc.addPage();head("Aufmaß Türen und Zargen");
@@ -1607,7 +1617,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 20:25";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 20:45";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
