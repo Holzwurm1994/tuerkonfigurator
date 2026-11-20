@@ -579,8 +579,10 @@ function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
 const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n);
 const num=v=>{const n=parseInt(String(v).replace(/\D/g,""),10);return isNaN(n)?null:n};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const wdN=d=>d.wd==="S"?num(d.wds):num(String(d.wd).split("–").pop());
+const wdTxt=d=>!d.wd?"–":d.wd==="S"?(num(d.wds)??"?")+" mm (Sondermaß)":d.wd+" mm";
 S.doors.forEach(derive);
-function isDone(d){if(d.art==="glas")return glasDone(d);return MKEYS.every(k=>num(d[k])!==null)&&!!d.wd&&!!d.din&&num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs}
+function isDone(d){if(d.art==="glas")return glasDone(d);return MKEYS.every(k=>num(d[k])!==null)&&!!d.wd&&(d.wd!=="S"||num(d.wds)!==null)&&!!d.din&&num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs}
 const LIST=()=>S.doors.slice().sort((a,b)=>((num(a.pos)??9999)-(num(b.pos)??9999))||(a.id-b.id));
 const byId=id=>S.doors.find(d=>d.id===id);
 const ttl=d=>"Pos. "+(num(d.pos)??"?")+" · "+(String(d.raum).trim()||"ohne Bezeichnung")+(d.gs?" ("+d.gs+")":"");
@@ -589,7 +591,7 @@ const doneCount=()=>S.doors.filter(isDone).length;
 /* ---------- Preise ---------- */
 function price(d){
   if(d.art==="glas")return glasPrice(d);
-  const L=[];const bw=num(d.brmB),bh=num(d.brmH),wd=num(String(d.wd).split("–").pop());
+  const L=[];const bw=num(d.brmB),bh=num(d.brmH),wd=wdN(d);
   const wTab={625:169,750:179,875:189,1000:219};
   L.push(["Türblatt "+(bw&&bh?bw+" × "+bh:"")+(bw&&wTab[bw]===undefined?" (Sondermaß)":""),wTab[bw]!==undefined?wTab[bw]:249]);
   if(bh===2125)L.push(["Überhöhe 2125",38]);else if(bh&&bh!==2000)L.push(["Sonderhöhe",60]);
@@ -597,7 +599,7 @@ function price(d){
   if(d.bauart==="rahmen")L.push(["Rahmentür mit Füllungen",260]);
   else{if(delta("mittel",d.mittel))L.push(["Mittellage "+lab("mittel",d.mittel),delta("mittel",d.mittel)]);if(delta("deck",d.deck))L.push(["Decklage "+lab("deck",d.deck),delta("deck",d.deck)])}
   let z=149;if(wd&&wd>145)z+=Math.ceil((wd-145)/20)*8;
-  L.push(["Zarge"+(d.wd?" für Wand "+d.wd+" mm":""),z]);
+  L.push(["Zarge"+(d.wd?" für Wand "+wdTxt(d):""),z]);if(d.wd==="S")L.push(["Zuschlag Sondermaß Zarge",85]);
   if(bh===2125)L.push(["Zarge Überhöhe",22]);
   if(delta("futter",d.futter))L.push(["Futter "+lab("futter",d.futter),delta("futter",d.futter)]);
   const f=farbe(d);
@@ -615,7 +617,7 @@ function price(d){
   return{lines:L,total:L.reduce((a,b)=>a+b[1],0)};
 }
 function orderTotals(){const net=S.doors.filter(isDone).reduce((a,d)=>a+price(d).total,0);const fr=89,sub=net+fr,vat=Math.round(sub*19)/100;return{net,fr,sub,vat,gross:sub+vat}}
-function lieferzeit(){return S.doors.some(d=>{return d.art==="glas"||d.ss!=="none"||d.la!=="none"||d.anschlag==="stumpf"||d.bauart==="rahmen"||d.futter==="massiv"})?"5–6 Wochen":"3–4 Wochen"}
+function lieferzeit(){return S.doors.some(d=>{return d.wd==="S"||d.art==="glas"||d.ss!=="none"||d.la!=="none"||d.anschlag==="stumpf"||d.bauart==="rahmen"||d.futter==="massiv"})?"5–6 Wochen":"3–4 Wochen"}
 
 /* ---------- Prüfung: Hinweise, keine Lösungen ---------- */
 /* Raum aus der Bezeichnung des Schülers erkennen (Grundriss Timo) */
@@ -675,7 +677,8 @@ function check(d,key){
       if(r[0]==="tb"&&sx==="B"&&(v===g("rbB")||v===g("brmB")))E.push("Bestellmaß Türblatt (Breite): Das Türblatt ist nicht so breit wie die Öffnung. In der Maßtabelle die Spalte Nennmaß/Bestellmaß ablesen.");
       else E.push(r[1]+" ("+nm+") passt nicht. In der "+TABN(d)+" die Zeile zum Baurichtmaß und die richtige Spalte suchen.");
     })});
-  if(num(d.wd)!==s[6])E.push("Wanddicke falsch. Gefragt ist die fertige Wand: Rohwand + Putz. Wähle die passende Herstellerwanddicke.");
+  if(d.wd==="S"&&num(d.wds)===s[6])E.push("Für diese Wanddicke gibt es ein Standardmaß in der Liste. Ein Sondermaß ist hier unnötig teuer.");
+  else if(num(d.wd)!==s[6])E.push("Wanddicke falsch. Gefragt ist die fertige Wand: Rohwand + Putz. Wähle die passende Herstellerwanddicke.");
   if(d.din!==s[7])E.push("Öffnungsrichtung prüfen: Türsymbol im Grundriss, Blick auf die Bandseite (DIN 107).");
   if(d.anschlag!=="falz")E.push("Anschlagart: Laut Türliste sind Timos Futtertüren überfälzt. Achtung: Stumpfe Türen haben andere Türblattmaße (Maßtabelle Stumpftüren).");
   if(d.anschlag==="falz"&&d.kante==="eckig")W.push("Überfälzte Türen haben üblicherweise gerundete Kanten. Eckig ist möglich, aber stoßempfindlicher.");
@@ -926,8 +929,8 @@ function renderService(){
     <div class="din"><div class="opt" style="cursor:default">${dinSvg("L")}<span class="ol">DIN links</span><span class="od">Bänder links</span></div><div class="opt" style="cursor:default">${dinSvg("R")}<span class="ol">DIN rechts</span><span class="od">Bänder rechts</span></div></div></section>
   <section class="block card faq"><h3>Häufige Fragen</h3>
     <details><summary>Warum ist das Türblatt schmaler als die Maueröffnung?</summary><p>Zwischen Mauer und Türblatt sitzt die Zarge mit Futter und Bekleidung. Außerdem braucht der Einbau eine Fuge. Deshalb wird nach Baurichtmaß bestellt, nicht nach Rohbaumaß.</p></details>
-    <details><summary>Welche Wanddicke gebe ich an?</summary><p>Die fertige Wand mit Putz oder Fliesen, an mehreren Stellen gemessen. Zargen gibt es nur für bestimmte Wanddicken, wählen Sie die passende aus der Liste.</p></details>
-    <details><summary>Kann ich einen Lichtausschnitt später einschneiden lassen?</summary><p>Nein. Lichtausschnitte werden ab Werk gefertigt und mit Sicherheitsglas (ESG oder VSG) verglast.</p></details>
+    <details><summary>Welche Wanddicke gebe ich an?</summary><p>Die fertige Wand mit Putz oder Fliesen, an mehreren Stellen gemessen. Zargen gibt es in Standardwanddicken, wählen Sie die passende aus der Liste. Weicht Ihre Wand davon ab, bestellen Sie eine Zarge im Sondermaß (Aufpreis, längere Lieferzeit).</p></details>
+    <details><summary>Kann ich einen Lichtausschnitt später einschneiden lassen?</summary><p>Grundsätzlich ja, aber nur mit sehr viel Aufwand: Ausschnitt sägen, Rahmen und Glasleisten einsetzen, Kanten nacharbeiten und die Oberfläche ausbessern. Das ist entsprechend teuer. Günstiger und sauberer ist es, den Lichtausschnitt gleich ab Werk mit Sicherheitsglas (ESG oder VSG) mitzubestellen.</p></details>
     <details><summary>Wie schalldicht ist eine Schallschutztür?</summary><p>Ganz schalldicht geht nicht. Schallschutzklassen geben das Schalldämmmaß in dB an. Wichtig sind ein schweres Türblatt, Dichtungen in der Zarge und eine Absenkdichtung. Auch die Wand begrenzt den Schallschutz.</p></details>
     <details><summary>Wie lange ist die Lieferzeit?</summary><p>Standardtüren 3–4 Wochen, mit Lichtausschnitt, Schallschutz, Rahmentür oder Massivholzfutter 5–6 Wochen.</p></details>
   </section></div>`;
@@ -1182,8 +1185,9 @@ function renderDoor(id){
     <details class="info"><summary>Maßskizze Höhen (ab fertigem Fußboden)</summary><div class="falz" id="hSkz" style="margin-top:8px">${hoeheSvg(d)}</div><p class="help">Alle Höhen werden ab <b>OKFF</b> (Oberkante fertiger Fußboden) gemessen. Unter dem Türblatt bleiben 7 mm Bodenluft.</p></details>
     <details class="info"><summary>Maßbegriffe mit Buchstaben (zum Lernen)</summary><div class="falz" style="margin-top:8px">${falzSvg()}</div></details></div>`)}
   ${step(2,"Zarge &amp; Futter",`
-    <label class="f">Fertige Wanddicke (Zargenmaulweite)<select id="wd" data-k="wd"><option value="">bitte wählen</option>${WAENDE.map(w=>`<option value="${w}" ${d.wd===w?"selected":""}>${w} mm</option>`).join("")}</select></label>
-    <p class="help">Umfassungszarge aus Futter und Bekleidung. Der Hersteller liefert Zargen nur für diese Wanddicken.</p>
+    <label class="f">Fertige Wanddicke (Zargenmaulweite)<select id="wd" data-k="wd"><option value="">bitte wählen</option>${WAENDE.map(w=>`<option value="${w}" ${d.wd===w?"selected":""}>${w} mm</option>`).join("")}<option value="S" ${d.wd==="S"?"selected":""}>Sondermaß (Aufpreis)</option></select></label>
+    ${d.wd==="S"?`<label class="f">Wanddicke Sondermaß<div class="unit"><input type="number" inputmode="numeric" pattern="[0-9]*" data-k="wds" value="${esc(d.wds||"")}" placeholder="gemessene Wanddicke"><span>mm</span></div></label><p class="help">Zargen im Sondermaß werden einzeln gefertigt: Aufpreis 85 € und etwa 2 Wochen längere Lieferzeit.</p>`:""}
+    <p class="help">Umfassungszarge aus Futter und Bekleidung. Der Hersteller liefert Zargen in diesen Standardwanddicken. Weicht die Wand ab, muss ein Sondermaß bestellt werden.</p>
     <details class="info"><summary>Gut zu wissen: Bandtaschen und Ständerwände</summary><p class="help" style="margin-top:6px">Das Futteraußenmaß inklusive Bandtaschen braucht eine Maueröffnung von <b>Baurichtmaß + 10 mm</b>. Die Zargen sind für Wände mit Fuge gebaut. Bei Wänden ohne Fuge (z. B. Ständerwände) muss bauseits Platz für die überstehenden Bandtaschen geschaffen werden. Ab 330 mm Wanddicke werden zwei Futterbretter kombiniert.</p></details>
     <div class="eyebrow">Futtermaterial</div><div class="opts">${radios("futter",d)}</div>`)}
   ${step(3,"Anschlag &amp; Öffnungsrichtung",`
@@ -1207,7 +1211,7 @@ function renderDoor(id){
   ${step(6,"Lichtausschnitt",`
     <div class="opts">${radios("la",d)}</div>
     ${d.la!=="none"?`<div class="eyebrow sub-eyebrow">Verglasung</div><div class="opts">${radios("glas",d)}</div>`:""}
-    <p class="help">Lichtausschnitte werden ab Werk gefertigt und lassen sich nicht nachträglich einschneiden.</p>`)}
+    <p class="help">Lichtausschnitte am besten gleich ab Werk bestellen. Nachträglich ist ein Ausschnitt nur mit sehr viel Aufwand möglich und entsprechend teuer.</p>`)}
   ${step(7,"Oberfläche &amp; Farbe",`
     <div class="opts">${radios("ofl",d)}</div>
     <div class="eyebrow sub-eyebrow">${d.ofl==="lack"?"Farbton (RAL)":d.ofl==="furn"?"Holzart":"Dekor"}</div>${sampleBox(d)}<div class="opts swatches">${swatches(d)}</div>
@@ -1229,7 +1233,7 @@ function renderDoor(id){
   <section class="block card show-m"><h3>Preisaufstellung</h3><div class="lines" id="pLines2" style="margin-top:8px"></div></section>
   </div></div>
   </div>`;
-  app.querySelectorAll("input[data-k],select[data-k]").forEach(i=>i.addEventListener(i.tagName==="SELECT"?"change":"input",()=>{d[i.dataset.k]=i.value;S.order=null;save();updDoor(id)}));
+  app.querySelectorAll("input[data-k],select[data-k]").forEach(i=>i.addEventListener(i.tagName==="SELECT"?"change":"input",()=>{d[i.dataset.k]=i.value;S.order=null;save();if(i.dataset.k==="wd"){const y=window.scrollY;renderDoor(id);window.scrollTo(0,y);return}updDoor(id)}));
   document.getElementById("doorCheck").addEventListener("click",()=>{
     const out=document.getElementById("doorRes");
     if(!isDone(d)){out.innerHTML=`<div class="msg warn">${d.art==="glas"?"Erst alle Angaben ausfüllen: Position, Glasmaß und Öffnungsrichtung.":"Erst alle Angaben ausfüllen: Position, alle Maße, Wanddicke und Öffnungsrichtung."}</div>`;return}
@@ -1303,7 +1307,7 @@ function updDoor(id){
     if(!pi.dataset.tap){pi.dataset.tap="1";pi.addEventListener("click",()=>{const l=pi.querySelector(".pvl");if(l){l.classList.remove("sw");l.classList.toggle("open")}})}}
   const pt=document.getElementById("pvTxt");
   if(pt&&d.art==="glas"){const g=GLAS[d.gsize];pt.innerHTML=`<dt>Glas</dt><dd class="mono">${g?g[5]+" × "+g[6]+" mm":"offen"}</dd><dt>Zargenfalz</dt><dd class="mono">${g?g[3]+" × "+g[4]+" mm":"offen"}</dd><dt>Glasart</dt><dd>${esc(lab("gart",d.gart))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Beschlag</dt><dd>${esc(lab("gdrk",d.gdrk))}</dd>`}
-  else if(pt)pt.innerHTML=`<dt>Türblatt</dt><dd class="mono">${num(d.tbB)&&num(d.tbH)?num(d.tbB)+" × "+num(d.tbH)+" mm":"offen"}</dd><dt>Bauart</dt><dd>${d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+esc(lab("mittel",d.mittel))}, ${d.anschlag==="falz"?"überfälzt":"stumpf"}</dd><dt>Zarge</dt><dd>${d.wd?d.wd+" mm, ":""}${esc(lab("futter",d.futter))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Oberfläche</dt><dd>${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</dd>`;
+  else if(pt)pt.innerHTML=`<dt>Türblatt</dt><dd class="mono">${num(d.tbB)&&num(d.tbH)?num(d.tbB)+" × "+num(d.tbH)+" mm":"offen"}</dd><dt>Bauart</dt><dd>${d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+esc(lab("mittel",d.mittel))}, ${d.anschlag==="falz"?"überfälzt":"stumpf"}</dd><dt>Zarge</dt><dd>${d.wd?wdTxt(d)+", ":""}${esc(lab("futter",d.futter))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Oberfläche</dt><dd>${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</dd>`;
   const bp=document.getElementById("bigPrice");if(bp)countUp(bp,LP[id],pr.total,"<small>netto zzgl. MwSt.</small>");LP[id]=pr.total;
   const pl=document.getElementById("pLines");
   const pl2=document.getElementById("pLines2");
@@ -1324,7 +1328,7 @@ function rowOf(d){
   const m=k=>{const a=num(d[k+"B"]),b=num(d[k+"H"]);return (a===null?"–":a)+" × "+(b===null?"–":b)};
   const kon=d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+lab("mittel",d.mittel)+", Decklage "+lab("deck",d.deck);
   const besch=lab("drk",d.drk)+"; "+lab("schloss",d.schloss)+"; "+d.bandzahl+" × "+lab("bandtyp",d.bandtyp)+", "+lab("bandfarbe",d.bandfarbe)+"; "+lab("schliess",d.schliess);
-  return [String(num(d.pos)??"?"),String(d.raum).trim()+(d.gs?" ("+d.gs+")":""),m("tb"),d.wd?d.wd+" mm":"–",m("zf"),m("bk"),m("fa"),m("ld"),lab("ofl",d.ofl)+", "+farbe(d)[1],d.din?"DIN "+d.din:"–",besch,
+  return [String(num(d.pos)??"?"),String(d.raum).trim()+(d.gs?" ("+d.gs+")":""),m("tb"),wdTxt(d),m("zf"),m("bk"),m("fa"),m("ld"),lab("ofl",d.ofl)+", "+farbe(d)[1],d.din?"DIN "+d.din:"–",besch,
     kon+(d.anschlag==="falz"?", überfälzt":", stumpf")+", Kante "+d.kante,lab("futter",d.futter),d.la==="none"?"–":lab("la",d.la).split(" – ")[0]+", "+lab("glas",d.glas),
     (d.ss==="none"?"–":lab("ss",d.ss).replace("Schallschutzklasse ",""))+" / "+(d.boden==="absenk"?"Schall-Ex":"Bodenluft"),euro(price(d).total)];
 }
@@ -1506,7 +1510,7 @@ async function buildPdf(){
    const body=LIST().map(d=>{const p=String(num(d.pos)??"?"),raum=String(d.raum).trim()+(d.gs?" ("+d.gs+")":"");
      if(d.art==="glas"){const g=GLAS[d.gsize];return [p,raum,"1","Ganzglastür 1-flg., "+lab("gart",d.gart),"ESG","–","geschliffen",g?g[6]+" × "+g[5]+" (Glas)":"–","Eigenbau",d.din||"–",lab("gdrk",d.gdrk)+(d.gdrk!=="stange"?", "+lab("gkasten",d.gkasten):"")+"; "+lab("gschloss",d.gschloss)+"; "+lab("gband",d.gband)+", "+lab("gbandf",d.gbandf),"–",d.gart.slice(-2,-1)==="1"?"10 mm":"8 mm","siehe Aufmaß Glasdrehtür"]}
      const ld=v=>num(v)===null?"–":num(v);
-     return [p,raum,"1",(d.bauart==="rahmen"?"Rahmentür":"Sperrtür")+(d.anschlag==="falz"?", überfälzt":", stumpf")+" mit Umfassungszarge ("+lab("futter",d.futter)+")",lab("ofl",d.ofl)+", "+farbe(d)[1],d.bauart==="rahmen"?"–":lab("mittel",d.mittel),d.kante,ld(d.tbH)+" × "+ld(d.tbB),d.wd?d.wd+" mm":"–",d.din||"–",
+     return [p,raum,"1",(d.bauart==="rahmen"?"Rahmentür":"Sperrtür")+(d.anschlag==="falz"?", überfälzt":", stumpf")+" mit Umfassungszarge ("+lab("futter",d.futter)+")",lab("ofl",d.ofl)+", "+farbe(d)[1],d.bauart==="rahmen"?"–":lab("mittel",d.mittel),d.kante,ld(d.tbH)+" × "+ld(d.tbB),wdTxt(d),d.din||"–",
        lab("drk",d.drk)+"; "+lab("schloss",d.schloss)+"; "+d.bandzahl+" × "+lab("bandtyp",d.bandtyp)+", "+lab("bandfarbe",d.bandfarbe)+"; "+lab("schliess",d.schliess),d.la==="none"?"–":lab("la",d.la).split(" – ")[0],d.la==="none"?"–":lab("glas",d.glas),
        [d.ss!=="none"?lab("ss",d.ss).replace("Schallschutzklasse ","Schallschutz "):"",d.boden==="absenk"?"Absenkdichtung":""].filter(Boolean).join(", ")||"–"]});
    doc.autoTable({startY:yy,head:[["Pos.","Raum","Stück","Türmodell","Holzart / Oberfläche","Mittellage","Kante eckig/rund","Maße Türblatt (Höhe × Breite)","Wandstärke","DIN L/R","Zubehör: Drücker, Schloss, Bänder, Schließblech","LA","Glas","Besonderheiten (Schallschutz, Klimaklasse, Sicherheit)"]],body,
@@ -1585,7 +1589,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 14:00";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 18:04";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
