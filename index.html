@@ -480,6 +480,10 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 .mrow{display:grid;gap:2px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2)}
 .mrow span{font-size:13px;color:var(--muted);font-family:var(--f-mono)}
 .mbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gsizes{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.gsz .od b{color:var(--ink);font-family:var(--f-mono);font-weight:600}
+.card.teams{margin-bottom:12px;border-left:4px solid #5b5fc7}
+.card.teams ol{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
 </style>
 <script>
 (function(){
@@ -512,6 +516,12 @@ const OPT={
   bandzahl:[["2","2 Bänder","Standard",0],["3","3 Bänder","für schwere oder hohe Türen",14]],
   drk:[["rund","Edelstahl, Rundrosette","Drücker L-Form, matt gebürstet",39],["schild","Edelstahl, Kurzschild","klassisch",49],["schw","Schwarz matt, Rundrosette","Drücker eckig",69]],
   schliess:[["lappen","Lappenschließblech","Standard für Holzzargen",0],["winkel","Winkelschließblech, verstellbar","Anpressdruck nachstellbar",9],["dicht","Schließblech mit Dichtungsausgleich","für Zargen mit Dichtung/Schallschutz",14]],
+  art:[["futter","Futtertür komplett","Türblatt, Zarge und Beschlag",0],["glas","Ganzglastürblatt","nur Glastürblatt + Beschlag, für eigene Zarge/Stockrahmen",0]],
+  gart:[["klar8","ESG 8 mm klar","durchsichtig",0],["sat8","ESG 8 mm satiniert","blickdicht, lichtdurchlässig",60],["dekor8","ESG 8 mm satiniert mit Klarglasstreifen","Dekor, blickdicht",110],["klar10","ESG 10 mm klar","schwerer und stabiler",90]],
+  gband:[["studio2","Glastürbänder, 2 Stück","Klemmbänder für Holzzargen, Standard",0],["studio3","Glastürbänder, 3 Stück","für hohe oder schwere Glastüren",45],["flach","Flächenbündige Glastürbänder, 2 Stück","in die Zarge eingelassen, edle Optik",85]],
+  gbandf:[["edel","Edelstahl matt","passt zu Edelstahldrückern",0],["alu","Aluminium silber","preiswert",-10],["schw","Schwarz matt","passt zu schwarzen Drückern",18]],
+  gdrk:[["rund","Glastürgarnitur Edelstahl, rund","Drücker beidseitig, Schlosskasten geklemmt",89],["eckig","Glastürgarnitur Edelstahl, eckig","Drücker beidseitig, Schlosskasten geklemmt",109],["schw","Glastürgarnitur schwarz matt","Drücker beidseitig, Schlosskasten geklemmt",129],["stange","Griffstangen beidseitig","mit Rollfalle, ohne Schloss",119]],
+  gschloss:[["falle","Nur Falle","ohne Schließung",0],["bb","Buntbart (BB)","einfacher Schlüssel",25],["pz","Profilzylinder (PZ)","abschließbar, inkl. Zylinder",59],["wc","WC-Verriegelung","mit Olive und Notöffnung",45]],
   schloss:[["bb","Buntbart (BB)","Standard-Zimmertürschloss",0],["pz","Profilzylinder (PZ)","abschließbar, inkl. Zylinder",43],["wc","WC-Schloss","mit WC-Garnitur (Riegel + Notöffnung)",29]]
 };
 const FARBEN={
@@ -523,7 +533,7 @@ const lab=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[1]:"–"};
 const delta=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[3]:0};
 const farbe=d=>(FARBEN[d.ofl]||[]).find(f=>f[0]===d.farbe)||FARBEN[d.ofl][0];
 
-function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"lappen",anschlag:"falz",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb"})}
+function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"lappen",anschlag:"falz",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb",art:"futter",gsize:"",gart:"sat8",gband:"studio2",gbandf:"edel",gdrk:"rund",gschloss:"falle"})}
 /* Abhängigkeiten zwischen Optionen, wie ein echter Konfigurator sie erzwingt */
 function norm(d){
   if(d.ss!=="none"){d.bauart="sperr";if(d.mittel!=="sand"&&d.mittel!=="voll")d.mittel="sand";d.boden="absenk";d.bandzahl="3";if(d.bandtyp==="e2")d.bandtyp="e3"}
@@ -540,6 +550,7 @@ function disabled(key,val,d){
     if(key==="bandtyp"&&val==="e2")return true;
   }
   if(key==="ss"&&val!=="none"&&d.bauart==="rahmen")return true;
+  if(key==="gschloss"&&val!=="falle"&&d.gdrk==="stange")return true;
   if(key==="bandtyp"&&d.anschlag==="stumpf"&&val!=="verd")return true;
   if(key==="bandtyp"&&d.anschlag==="falz"&&val==="verd")return true;
   return false;
@@ -553,7 +564,7 @@ const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).f
 const num=v=>{const n=parseInt(String(v).replace(/\D/g,""),10);return isNaN(n)?null:n};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 S.doors.forEach(derive);
-function isDone(d){return MKEYS.every(k=>num(d[k])!==null)&&!!d.wd&&!!d.din&&num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs}
+function isDone(d){if(d.art==="glas")return glasDone(d);return MKEYS.every(k=>num(d[k])!==null)&&!!d.wd&&!!d.din&&num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs}
 const LIST=()=>S.doors.slice().sort((a,b)=>((num(a.pos)??9999)-(num(b.pos)??9999))||(a.id-b.id));
 const byId=id=>S.doors.find(d=>d.id===id);
 const ttl=d=>"Pos. "+(num(d.pos)??"?")+" · "+(String(d.raum).trim()||"ohne Bezeichnung")+(d.gs?" ("+d.gs+")":"");
@@ -561,6 +572,7 @@ const doneCount=()=>S.doors.filter(isDone).length;
 
 /* ---------- Preise ---------- */
 function price(d){
+  if(d.art==="glas")return glasPrice(d);
   const L=[];const bw=num(d.brmB),bh=num(d.brmH),wd=num(String(d.wd).split("–").pop());
   const wTab={625:169,750:179,875:189,1000:219};
   L.push(["Türblatt "+(bw&&bh?bw+" × "+bh:"")+(bw&&wTab[bw]===undefined?" (Sondermaß)":""),wTab[bw]!==undefined?wTab[bw]:249]);
@@ -587,7 +599,7 @@ function price(d){
   return{lines:L,total:L.reduce((a,b)=>a+b[1],0)};
 }
 function orderTotals(){const net=S.doors.filter(isDone).reduce((a,d)=>a+price(d).total,0);const fr=89,sub=net+fr,vat=Math.round(sub*19)/100;return{net,fr,sub,vat,gross:sub+vat}}
-function lieferzeit(){return S.doors.some(d=>{return d.ss!=="none"||d.la!=="none"||d.anschlag==="stumpf"||d.bauart==="rahmen"||d.futter==="massiv"})?"5–6 Wochen":"3–4 Wochen"}
+function lieferzeit(){return S.doors.some(d=>{return d.art==="glas"||d.ss!=="none"||d.la!=="none"||d.anschlag==="stumpf"||d.bauart==="rahmen"||d.futter==="massiv"})?"5–6 Wochen":"3–4 Wochen"}
 
 /* ---------- Prüfung: Hinweise, keine Lösungen ---------- */
 /* Raum aus der Bezeichnung des Schülers erkennen (Grundriss Timo) */
@@ -607,7 +619,10 @@ function checkAll(roomsOnly){
   LIST().forEach(d=>{
     let m=matchRoom(d);const E=[],W=[];
     if(m==="K")m=used["7"]?"8":"7";
-    if(m==="W")E.push("Die Öffnung zum Wohnzimmer ist keine Futtertür aus dem Katalog. Laut Auftrag wird sie als Stocktür in der eigenen Werkstatt gefertigt. Diese Position gehört nicht in die Bestellung.");
+    if(m==="W"&&d.art!=="glas")E.push("Zum Wohnzimmer kommt keine Futtertür. Den Stockrahmen baut ihr selbst, bestellt wird nur ein Ganzglastürblatt. Ändere bei dieser Position das Produkt.");
+    else if(m==="W"&&used["3"]){const o=byId(used["3"]);E.push("Diese Tür ist schon als "+ttl(o)+" in der Bestellung. Doppelte Position?")}
+    else if(m==="W"){used["3"]=d.id;if(!roomsOnly){const r=glasCheck(d);E.push(...r.E);W.push(...r.W)}}
+    else if(d.art==="glas")E.push("Ein Ganzglastürblatt ist laut Auftrag nur für das Wohnzimmer vorgesehen. Hier wird eine Futtertür bestellt.");
     else if(m==="X")E.push("Laut Grundriss ist hier keine Tür vorgesehen (Durchgang bzw. Treppenhaus ohne Tür). Position prüfen.");
     else if(m==="B?")E.push("Es gibt zwei Bäder. Gib das Geschoss richtig an.");
     else if(m===null)E.push("Raum nicht im Grundriss gefunden. Verwende die Raumbezeichnung aus dem Grundriss.");
@@ -616,7 +631,7 @@ function checkAll(roomsOnly){
     per[d.id]={E,W};
   });
   const posNums=LIST().map(d=>num(d.pos));if(posNums.some((n,i)=>n!==null&&posNums.indexOf(n)!==i))glob.push({c:"warn",t:"Mehrere Positionen haben dieselbe Positionsnummer. Nummeriere wie in deiner Aufmaßtabelle."});
-  if(["1","2","4","5","6","7","8"].some(k=>!used[k]))glob.push({c:"err",t:"Es fehlen noch Türen aus dem Grundriss. Vergleiche deine Bestellung mit deiner Aufmaßtabelle (EG und OG)."});
+  if(["1","2","3","4","5","6","7","8"].some(k=>!used[k]))glob.push({c:"err",t:"Es fehlen noch Türen aus dem Grundriss. Vergleiche deine Bestellung mit deiner Aufmaßtabelle (EG und OG)."});
   const errs=Object.values(per).reduce((a,r)=>a+r.E.length,0)+glob.filter(g=>g.c==="err").length;
   return{per,glob,errs,used};
 }
@@ -625,7 +640,7 @@ function checkOne(d){
   const all=checkAll(true),r=all.per[d.id]||{E:[],W:[]};
   if(r.E.length)return r;
   const key=Object.keys(all.used).find(k=>all.used[k]===d.id);
-  return key?check(d,key):r;
+  return key?(key==="3"?glasCheck(d):check(d,key)):r;
 }
 const resHtml=r=>(!r.E.length&&!r.W.length)?`<div class="msg ok"><svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Alles plausibel.</div>`:r.E.map(m=>`<div class="msg err">${esc(m)}</div>`).join("")+r.W.map(m=>`<div class="msg warn">${esc(m)}</div>`).join("");
 function check(d,key){
@@ -663,6 +678,7 @@ function check(d,key){
 /* ---------- Bilder ---------- */
 function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=(n>>8)&255,b=n&255;r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return"#"+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
 function doorSvg(d,o){
+  if(d.art==="glas")return glasSvg(d,o);
   o=o||{};const stroke=o.stroke||"#26302b";const f=farbe(d)[2];const zf=shade(f,0.9);
   const hingeL=d.din!=="R";const hx=hingeL?10:86;const gx=hingeL?80:20;
   const bandCol={vern:"#b9bec2",edel:"#9aa3a8",schw:"#1d1f20"}[d.bandfarbe]||"#b9bec2";
@@ -764,7 +780,7 @@ function renderHome(){
       <dl class="kv">
         <dt>Bauvorhaben</dt><dd>EFH Timo, Gunzenhausen</dd>
         <dt>Unterlagen</dt><dd>Grundriss EG/OG 1:50, Aufmaßtabelle, Maßtabelle Falztüren</dd>
-        <dt>Auftrag</dt><dd>Alle Futtertüren laut Grundriss bestellen (Türblatt, Zarge, Beschlag)</dd>
+        <dt>Auftrag</dt><dd>Alle Futtertüren laut Grundriss bestellen (Türblatt, Zarge, Beschlag), fürs Wohnzimmer ein Ganzglastürblatt für den selbst gebauten Stockrahmen</dd>
       </dl>
       <div style="display:grid;gap:6px;margin-top:6px"><span class="help">${nAll} Positionen angelegt, davon ${done} vollständig konfiguriert · ${euro(t.net)} netto</span></div>
     </div>
@@ -932,6 +948,87 @@ function schallexSvg(d){
   ${ab?`<g class="t1"><text x="6" y="40" font-weight="700">Tür offen:</text><text x="6" y="55">Dichtung oben</text></g><g class="t2"><text x="6" y="40" font-weight="700">Tür zu:</text><text x="6" y="55">Dichtung liegt</text><text x="6" y="70">auf dem Boden</text></g><text x="252" y="40" font-size="11">Auslöser drückt</text><text x="252" y="54" font-size="11">gegen die Zarge</text>`:`<text x="6" y="40" font-weight="700">ca. 7 mm Luft:</text><text x="6" y="55">Schall und Zug</text><text x="6" y="70">gehen durch</text>`}</g>
   </svg><div class="cap">${ab?"Absenkdichtung (Schall-Ex): schließt den Spalt am Boden, ohne über den Boden zu schleifen":"Ohne Absenkdichtung bleibt unten ein Spalt"}</div></div>`;
 }
+/* ---------- Ganzglastürblatt (Wohnen, Stockrahmen in Eigenfertigung) ---------- */
+/* Standardmaße nach Infotext (DIN 18101, haefele.de): [BRM B, BRM H, Rohbaubreite, ZF B, ZF H, Glas B, Glas H, Grundpreis] */
+const GLAS={"750x2000":[750,2000,760,716,1983,709,1972,459],"875x2000":[875,2000,885,841,1983,834,1972,489],"1000x2000":[1000,2000,1010,966,1983,959,1972,529],
+  "750x2125":[750,2125,760,716,2108,709,2097,499],"875x2125":[875,2125,885,841,2108,834,2097,529],"1000x2125":[1000,2125,1010,966,2108,959,2097,569]};
+function glasSvg(d,o){
+  o=o||{};const stroke=o.stroke||"#26302b";const hingeL=d.din!=="R";const hx=hingeL?12:84,gx=hingeL?80:20;
+  const tint={klar8:"#cfe7ee",klar10:"#bfdfe8",sat8:"#e9eff0",dekor8:"#e9eff0"}[d.gart]||"#cfe7ee";
+  const m=(METAL[d.gbandf==="schw"?"schw":"edel"]);
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 172" ${o.cls?`class="${o.cls}"`:""} aria-hidden="true">`;
+  if(o.part!=="leaf")s+=`<rect x="2" y="2" width="96" height="168" fill="#d8b98c" stroke="${stroke}" stroke-width="1.5"/>`;
+  if(o.part==="frame")return s+`<rect x="12" y="10" width="76" height="160" fill="#f3e2b8" stroke="${stroke}" stroke-width="1.2"/><rect x="12" y="150" width="76" height="20" fill="#d9c49a"/></svg>`;
+  s+=`<rect x="13" y="11" width="74" height="155" fill="${tint}" fill-opacity="${d.gart&&d.gart.startsWith("klar")?.75:.95}" stroke="#7fa3ad" stroke-width="1"/>`;
+  if(d.gart==="dekor8")[40,70,100,130].forEach(y=>{s+=`<rect x="13" y="${y}" width="74" height="4" fill="#cfe7ee" opacity=".9"/>`});
+  if(d.gart&&d.gart.startsWith("klar"))s+=`<path d="M22 24 L40 60 M28 22 L50 66" stroke="#fff" stroke-width="2" opacity=".75"/>`;
+  const ys=d.gband==="studio3"?[24,88,150]:[24,150];
+  ys.forEach(y=>{s+=d.gband==="flach"?`<rect x="${hx-2}" y="${y-6}" width="8" height="12" rx="1" fill="${m[1]}" stroke="${stroke}" stroke-width=".5"/>`:`<rect x="${hx-3}" y="${y-8}" width="12" height="16" rx="2" fill="${m[1]}" stroke="${stroke}" stroke-width=".6"/><circle cx="${hx+5}" cy="${y-3}" r="1" fill="${m[2]}"/><circle cx="${hx+5}" cy="${y+3}" r="1" fill="${m[2]}"/>`});
+  const dc=d.gdrk==="schw"?METAL.schw[1]:"#a9b0b4";
+  if(d.gdrk==="stange")s+=`<rect x="${gx-2}" y="62" width="4" height="70" rx="2" fill="${dc}" stroke="${stroke}" stroke-width=".5"/>`;
+  else{s+=`<rect x="${hingeL?gx-7:gx-5}" y="90" width="12" height="22" rx="2" fill="${dc}" stroke="${stroke}" stroke-width=".5"/>`;
+    s+=`<rect x="${hingeL?gx-16:gx}" y="94" width="16" height="3.2" rx="1.6" fill="${d.gdrk==="schw"?"#1d1f20":"#c3c9cc"}" stroke="${stroke}" stroke-width=".4"/>`;
+    if(d.gschloss!=="falle")s+=`<circle cx="${gx-1}" cy="105" r="1.6" fill="${stroke}"/>`;}
+  return s+"</svg>";
+}
+function glasDone(d){return num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs&&!!GLAS[d.gsize]&&!!d.din}
+function glasPrice(d){const L=[],g=GLAS[d.gsize];
+  L.push(["Ganzglastürblatt ESG"+(g?" "+g[5]+" × "+g[6]:""),g?g[7]:529]);
+  if(delta("gart",d.gart))L.push([lab("gart",d.gart),delta("gart",d.gart)]);
+  L.push(["Bohrungen/Ausschnitte für Beschläge",38]);
+  L.push([lab("gband",d.gband),delta("gband",d.gband)+69]);
+  if(delta("gbandf",d.gbandf))L.push(["Bänder "+lab("gbandf",d.gbandf),delta("gbandf",d.gbandf)]);
+  L.push([lab("gdrk",d.gdrk),delta("gdrk",d.gdrk)]);
+  if(delta("gschloss",d.gschloss))L.push([lab("gschloss",d.gschloss),delta("gschloss",d.gschloss)]);
+  L.push(["Gegenkasten/Schließblech für Holzrahmen",19]);
+  return{lines:L,total:L.reduce((a,b)=>a+b[1],0)}}
+function glasRow(d){const g=GLAS[d.gsize];const mm=(a,b)=>g?a+" × "+b:"–";
+  return [String(num(d.pos)??"?"),String(d.raum).trim()+(d.gs?" ("+d.gs+")":""),"Glas "+mm(g&&g[5],g&&g[6]),"–",mm(g&&g[3],g&&g[4]),"–","–","–",lab("gart",d.gart),d.din?"DIN "+d.din:"–",
+    lab("gdrk",d.gdrk)+"; "+lab("gschloss",d.gschloss)+"; "+lab("gband",d.gband)+", "+lab("gbandf",d.gbandf),"Ganzglastürblatt ESG, stumpf","– (Stockrahmen Eigenbau)","–","–",euro(glasPrice(d).total)]}
+function glasCheck(d){const E=[],W=[];
+  if(d.din&&d.din!=="L")E.push("Öffnungsrichtung prüfen: Türsymbol im Grundriss, Blick auf die Bandseite (DIN 107).");
+  if(d.gsize&&!GLAS[d.gsize])E.push("Wähle eines der Standardmaße für Glastürblätter.");
+  if(d.gart&&d.gart.startsWith("klar"))W.push("Klarglas ist kaum zu sehen. Satiniertes Glas oder ein Dekor verhindert, dass jemand dagegen läuft.");
+  if(d.gdrk==="stange"&&d.gschloss!=="falle")W.push("Griffstange und Schloss passen nicht zusammen.");
+  return{E,W}}
+function glasSteps(d){
+  const sizes=Object.keys(GLAS).map(k=>{const g=GLAS[k];return `<label class="opt gsz"><input type="radio" name="gsize" value="${k}" ${d.gsize===k?"checked":""}><span class="ol">BRM ${g[0]} × ${g[1]}</span><span class="od">Rohbau ${g[2]} breit · Zargenfalz ${g[3]} × ${g[4]}<br><b>Glas ${g[5]} × ${g[6]} mm</b></span><span class="op">${euro(g[7])}</span></label>`}).join("");
+  return `${step(1,"Glasmaß (Standardmaß)",`
+    <p class="help">Ganzglastüren schlagen stumpf an. Maßgebend ist das <b>Zargenfalzmaß</b> deines Stockrahmens. Das Glas ist rundum kleiner: Glasbreite = Falzmaß − 7 mm, Glashöhe = Falzmaß − 11 mm (7 mm Luft unten). Wähle ein Standardmaß, Sondermaße sind erheblich teurer.</p>
+    <div class="opts gsizes">${sizes}</div>
+    <p class="hint">ESG kann nach dem Härten nicht mehr gekürzt oder gebohrt werden: erst exakt messen, dann bestellen!</p>`)}
+  ${step(2,"Öffnungsrichtung",`
+    <p class="help">DIN-Richtung nach DIN 107: Blick auf die Bandseite (die Tür geht auf dich zu).</p>
+    <div class="din">
+      <label class="opt"><input type="radio" name="din" value="L" ${d.din==="L"?"checked":""}>${dinSvg("L")}<span class="ol">DIN links</span><span class="od">Bänder links</span></label>
+      <label class="opt"><input type="radio" name="din" value="R" ${d.din==="R"?"checked":""}>${dinSvg("R")}<span class="ol">DIN rechts</span><span class="od">Bänder rechts</span></label>
+    </div>`)}
+  ${step(3,"Glasart",`<div class="opts">${radios("gart",d)}</div>`)}
+  ${step(4,"Beschläge für Glastüren",`
+    <p class="help">Die Beschläge werden geklemmt oder geschraubt, die Schrauben dürfen das Glas nicht berühren. Die Bohrungen fertigt der Lieferant passend zum Beschlag, deshalb Türblatt und Beschläge beim selben Lieferanten bestellen.</p>
+    <div class="eyebrow">Bänder</div><div class="opts">${radios("gband",d)}</div>
+    <div class="eyebrow sub-eyebrow">Oberfläche Bänder</div><div class="opts">${radios("gbandf",d)}</div>
+    <div class="eyebrow sub-eyebrow">Drückergarnitur</div><div class="opts">${radios("gdrk",d)}</div>
+    <div class="eyebrow sub-eyebrow">Schloss</div><div class="opts">${radios("gschloss",d)}</div>`)}`;
+}
+function gHingeIco(kind,col){const m=METAL[col]||METAL.edel;
+  if(kind==="flach")return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="4" y="10" width="20" height="36" fill="#d8b98c" stroke="#6b5a45"/><rect x="26" y="8" width="26" height="40" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="18" y="20" width="16" height="16" rx="1.5" fill="${m[1]}" stroke="${m[2]}"/></svg>`;
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="4" y="10" width="18" height="36" fill="#d8b98c" stroke="#6b5a45"/><rect x="28" y="8" width="24" height="40" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="16" y="${kind==="studio3"?14:18}" width="8" height="${kind==="studio3"?28:20}" rx="2" fill="${m[1]}" stroke="${m[2]}"/><rect x="24" y="16" width="16" height="24" rx="2.5" fill="${m[1]}" stroke="${m[2]}"/><circle cx="32" cy="22" r="1.6" fill="${m[2]}"/><circle cx="32" cy="34" r="1.6" fill="${m[2]}"/></svg>`}
+function gDrkIco(k){const blk=k==="schw",m=blk?METAL.schw:METAL.edel;
+  if(k==="stange")return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="4" width="34" height="48" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="26" y="8" width="5" height="40" rx="2.5" fill="${m[1]}" stroke="${m[2]}"/><rect x="20" y="12" width="8" height="3" fill="${m[2]}"/><rect x="20" y="41" width="8" height="3" fill="${m[2]}"/></svg>`;
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="4" width="34" height="48" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="${k==="eckig"?20:21}" y="18" width="14" height="22" rx="${k==="eckig"?1:5}" fill="${m[1]}" stroke="${m[2]}"/><path d="M27 23h${k==="eckig"?22:20}${k==="eckig"?"v5h-22z":"a2.5 2.5 0 0 1 0 5H27z"}" fill="${m[0]}" stroke="${m[2]}" stroke-width=".8"/><circle cx="27" cy="34" r="1.6" fill="${m[2]}"/></svg>`}
+Object.assign(OPTICO,{
+  art:{futter:()=>`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="4" width="32" height="48" fill="#e7d6b8" stroke="#6b5a45" stroke-width="1.4"/><rect x="17" y="8" width="22" height="44" fill="#f3f3ef" stroke="#6b5a45"/><rect x="31" y="29" width="7" height="2" fill="#8c9599"/></svg>`,
+       glas:()=>`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="4" width="32" height="48" fill="#d8b98c" stroke="#6b5a45" stroke-width="1.4"/><rect x="17" y="8" width="22" height="44" fill="#cfe7ee" stroke="#7fa3ad"/><path d="M20 14l8 14M23 12l10 18" stroke="#fff" stroke-width="1.6"/><rect x="31" y="27" width="5" height="9" rx="1" fill="#a9b0b4"/></svg>`},
+  gband:{studio2:d=>gHingeIco("studio2",d.gbandf),studio3:d=>gHingeIco("studio3",d.gbandf),flach:d=>gHingeIco("flach",d.gbandf)},
+  gbandf:{edel:()=>dotIco("edel"),alu:()=>dotIco("vern"),schw:()=>dotIco("schw")},
+  gdrk:{rund:()=>gDrkIco("rund"),eckig:()=>gDrkIco("eckig"),schw:()=>gDrkIco("schw"),stange:()=>gDrkIco("stange")},
+  gschloss:{falle:()=>lockIco("none"),bb:()=>lockIco("bb"),pz:()=>lockIco("pz"),wc:()=>lockIco("wc")},
+  gart:{klar8:()=>`<svg viewBox="0 0 56 56"><rect x="10" y="4" width="36" height="48" fill="#cfe7ee" fill-opacity=".75" stroke="#7fa3ad"/><path d="M16 12l10 18M20 10l14 24" stroke="#fff" stroke-width="2"/></svg>`,
+        sat8:()=>`<svg viewBox="0 0 56 56"><rect x="10" y="4" width="36" height="48" fill="#e9eff0" stroke="#7fa3ad"/></svg>`,
+        dekor8:()=>`<svg viewBox="0 0 56 56"><rect x="10" y="4" width="36" height="48" fill="#e9eff0" stroke="#7fa3ad"/><g fill="#cfe7ee"><rect x="10" y="14" width="36" height="3"/><rect x="10" y="26" width="36" height="3"/><rect x="10" y="38" width="36" height="3"/></g></svg>`,
+        klar10:()=>`<svg viewBox="0 0 56 56"><rect x="8" y="4" width="40" height="48" fill="#bfdfe8" fill-opacity=".8" stroke="#7fa3ad" stroke-width="2"/><path d="M16 12l10 18M20 10l14 24" stroke="#fff" stroke-width="2"/></svg>`}
+});
 function radios(key,d){
   return OPT[key].map(o=>{const dis=disabled(key,o[0],d);
     const ic=OPTICO[key]&&OPTICO[key][o[0]];
@@ -961,8 +1058,8 @@ function renderDoor(id){
   ${crumbs([["Startseite","home"],["Ihre Positionen","produkte"],[esc(ttl(d))]])}
   <section class="block buy">
     <div class="eyebrow" id="dTitle">${esc(ttl(d))}</div>
-    <h1>Futtertür mit Umfassungszarge</h1>
-    <p class="lede">Türblatt, Zarge und Beschlag als Komplettelement. Konfigurieren Sie die Tür Schritt für Schritt.</p>
+    <h1>${d.art==="glas"?"Ganzglastürblatt ESG":"Futtertür mit Umfassungszarge"}</h1>
+    <p class="lede">${d.art==="glas"?"Glastürblatt mit Beschlag für eine vorhandene oder selbst gebaute Zarge. Konfigurieren Sie die Tür Schritt für Schritt.":"Türblatt, Zarge und Beschlag als Komplettelement. Konfigurieren Sie die Tür Schritt für Schritt."}</p>
     <div class="bigp" id="bigPrice"></div>
   </section>
   <div class="pdp">
@@ -977,8 +1074,9 @@ function renderDoor(id){
     <div class="row2"><label class="f">Pos.-Nr.<input type="number" inputmode="numeric" data-k="pos" value="${esc(d.pos)}"></label>
     <label class="f">Geschoss<select data-k="gs"><option value="">bitte wählen</option>${["EG","OG"].map(g=>`<option ${d.gs===g?"selected":""}>${g}</option>`).join("")}</select></label></div>
     <label class="f">Raum<input type="text" data-k="raum" value="${esc(d.raum)}" placeholder="wie im Grundriss"></label>
+    <div class="eyebrow sub-eyebrow">Produkt</div><div class="opts">${radios("art",d)}</div>
     <button class="btn sec" id="delBtn" type="button">Position entfernen</button>`)}
-  ${step(1,"Maße",`
+  ${d.art==="glas"?glasSteps(d):`  ${step(1,"Maße",`
     <div class="chain"><b>Rohbaumaß</b>→<b>Baurichtmaß</b>→<b>Bestellmaß Türblatt</b></div>
     <p class="help">Trage nur das <b>Rohbaumaß aus dem Plan</b> bzw. deiner Aufmaßtabelle ein (in mm). Baurichtmaß, Türblatt, Zarge und Durchgang füllt der Shop automatisch nach der Maßtabelle Falztüren (DIN 18101) aus.</p>
     <div class="mtable">
@@ -1023,6 +1121,7 @@ function renderDoor(id){
     <div class="eyebrow sub-eyebrow">Drückergarnitur</div><div class="opts">${radios("drk",d)}</div>
     <div class="eyebrow sub-eyebrow">Schloss</div><div class="opts">${radios("schloss",d)}</div>
     <div class="eyebrow sub-eyebrow">Schließblech</div><div class="opts">${radios("schliess",d)}</div>`)}
+`}
   <section class="block card" id="kontrolle2">
     <div class="eyebrow">Kontrolle 2</div><h3>Diese Position prüfen</h3>
     <p class="help">Prüft Raum, Maße, Wanddicke, Öffnungsrichtung und Kundenwünsche dieser Tür. Die Lösung wird nicht angezeigt.</p>
@@ -1035,7 +1134,7 @@ function renderDoor(id){
   app.querySelectorAll("input[data-k],select[data-k]").forEach(i=>i.addEventListener(i.tagName==="SELECT"?"change":"input",()=>{d[i.dataset.k]=i.value;S.order=null;save();updDoor(id)}));
   document.getElementById("doorCheck").addEventListener("click",()=>{
     const out=document.getElementById("doorRes");
-    if(!isDone(d)){out.innerHTML=`<div class="msg warn">Erst alle Angaben ausfüllen: Position, alle Maße, Wanddicke und Öffnungsrichtung.</div>`;return}
+    if(!isDone(d)){out.innerHTML=`<div class="msg warn">${d.art==="glas"?"Erst alle Angaben ausfüllen: Position, Glasmaß und Öffnungsrichtung.":"Erst alle Angaben ausfüllen: Position, alle Maße, Wanddicke und Öffnungsrichtung."}</div>`;return}
     S.doorChecks++;save();out.innerHTML=`<div class="help">Prüfung Nr. ${S.doorChecks}</div>`+resHtml(checkOne(d))});
   const del=document.getElementById("delBtn");del.addEventListener("click",()=>{
     if(del.dataset.armed){S.doors=S.doors.filter(x=>x.id!==id);S.order=null;save();go({name:"home",anchor:"produkte"})}
@@ -1104,7 +1203,8 @@ function updDoor(id){
     if(prev!==undefined&&prev!==d.din&&d.din&&!RM){const l=pi.querySelector(".pvl");l.classList.remove("open");l.classList.add("sw")}
     if(!pi.dataset.tap){pi.dataset.tap="1";pi.addEventListener("click",()=>{const l=pi.querySelector(".pvl");if(l){l.classList.remove("sw");l.classList.toggle("open")}})}}
   const pt=document.getElementById("pvTxt");
-  if(pt)pt.innerHTML=`<dt>Türblatt</dt><dd class="mono">${num(d.tbB)&&num(d.tbH)?num(d.tbB)+" × "+num(d.tbH)+" mm":"offen"}</dd><dt>Bauart</dt><dd>${d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+esc(lab("mittel",d.mittel))}, ${d.anschlag==="falz"?"überfälzt":"stumpf"}</dd><dt>Zarge</dt><dd>${d.wd?d.wd+" mm, ":""}${esc(lab("futter",d.futter))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Oberfläche</dt><dd>${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</dd>`;
+  if(pt&&d.art==="glas"){const g=GLAS[d.gsize];pt.innerHTML=`<dt>Glas</dt><dd class="mono">${g?g[5]+" × "+g[6]+" mm":"offen"}</dd><dt>Zargenfalz</dt><dd class="mono">${g?g[3]+" × "+g[4]+" mm":"offen"}</dd><dt>Glasart</dt><dd>${esc(lab("gart",d.gart))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Beschlag</dt><dd>${esc(lab("gdrk",d.gdrk))}</dd>`}
+  else if(pt)pt.innerHTML=`<dt>Türblatt</dt><dd class="mono">${num(d.tbB)&&num(d.tbH)?num(d.tbB)+" × "+num(d.tbH)+" mm":"offen"}</dd><dt>Bauart</dt><dd>${d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+esc(lab("mittel",d.mittel))}, ${d.anschlag==="falz"?"überfälzt":"stumpf"}</dd><dt>Zarge</dt><dd>${d.wd?d.wd+" mm, ":""}${esc(lab("futter",d.futter))}</dd><dt>Richtung</dt><dd>${d.din?"DIN "+(d.din==="L"?"links":"rechts"):"offen"}</dd><dt>Oberfläche</dt><dd>${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</dd>`;
   const bp=document.getElementById("bigPrice");if(bp)countUp(bp,LP[id],pr.total,"<small>netto zzgl. MwSt.</small>");LP[id]=pr.total;
   const pl=document.getElementById("pLines");
   const pl2=document.getElementById("pLines2");
@@ -1121,6 +1221,7 @@ function updDoor(id){
 const COLS=["Pos.","Raum","Bestellmaß Türblatt B × H","Wand","Zargenfalzmaß B × H","Bekleidungs-außenmaß B × H","Futteraußenmaß B × H","Lichtes Durchgangsmaß B × H","Oberfläche / Farbe","DIN L/R","Beschläge (Drücker, Schloss, Bänder, Schließblech)","Konstruktion","Futter","Lichtausschnitt","Schallschutz / Boden","Preis netto"];
 const NCOL=[2,3,4,5,6,7,9];
 function rowOf(d){
+  if(d.art==="glas")return glasRow(d);
   const m=k=>{const a=num(d[k+"B"]),b=num(d[k+"H"]);return (a===null?"–":a)+" × "+(b===null?"–":b)};
   const kon=d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+lab("mittel",d.mittel)+", Decklage "+lab("deck",d.deck);
   const besch=lab("drk",d.drk)+"; "+lab("schloss",d.schloss)+"; "+d.bandzahl+" × "+lab("bandtyp",d.bandtyp)+", "+lab("bandfarbe",d.bandfarbe)+"; "+lab("schliess",d.schliess);
@@ -1143,7 +1244,7 @@ function renderCheck(){
     <h1>Bestellmaske</h1>
     <p class="lede">Deine Bestellliste Futtertüren: alle Positionen auf einen Blick. Oben kannst du Türen ändern oder aus dem Warenkorb entfernen. Die Tabelle darunter lässt sich seitlich wischen.</p>
   </section>
-  ${L.length?`<section class="block cartlist" aria-label="Positionen im Warenkorb">${L.map(d=>`<div class="citem" data-cid="${d.id}"><div class="cimg">${doorSvg(d)}</div><div class="cinfo"><b>${esc(ttl(d))}</b><span>${isDone(d)?esc(num(d.tbB)+" × "+num(d.tbH)+" mm · DIN "+(d.din==="L"?"links":"rechts")):"noch unvollständig"}</span><span class="cpr">${euro(price(d).total)}</span></div><div class="cact"><button class="btn sec sm" data-edit="${d.id}">Ändern</button><button class="btn sec sm cdel" data-del="${d.id}" aria-label="${esc(ttl(d))} entfernen">Entfernen</button></div></div>`).join("")}</section>`:""}
+  ${L.length?`<section class="block cartlist" aria-label="Positionen im Warenkorb">${L.map(d=>`<div class="citem" data-cid="${d.id}"><div class="cimg">${doorSvg(d)}</div><div class="cinfo"><b>${esc(ttl(d))}</b><span>${!isDone(d)?"noch unvollständig":d.art==="glas"?esc("Glas "+GLAS[d.gsize][5]+" × "+GLAS[d.gsize][6]+" mm · DIN "+(d.din==="L"?"links":"rechts")):esc(num(d.tbB)+" × "+num(d.tbH)+" mm · DIN "+(d.din==="L"?"links":"rechts"))}</span><span class="cpr">${euro(price(d).total)}</span></div><div class="cact"><button class="btn sec sm" data-edit="${d.id}">Ändern</button><button class="btn sec sm cdel" data-del="${d.id}" aria-label="${esc(ttl(d))} entfernen">Entfernen</button></div></div>`).join("")}</section>`:""}
   <section class="block"><div class="tscroll"><table class="bm"><thead><tr>${COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>
     ${L.length?"":`<tr><td colspan="16">Noch keine Positionen angelegt.</td></tr>`}
     ${L.map(d=>`<tr data-id="${d.id}" class="${lc&&lc.per[d.id]&&lc.per[d.id].E.length?"err":""}" style="cursor:pointer">${rowOf(d).map((c,i)=>`<td class="${i===15?"pr":(NCOL.includes(i)?"n":"")}">${esc(c)}</td>`).join("")}</tr>`).join("")}
@@ -1159,7 +1260,7 @@ function renderCheck(){
   <section class="block card">
     <h3>Bestellsumme</h3>
     <div class="lines">
-      <div><span>${L.length} ${L.length===1?"Futtertür":"Futtertüren"}</span><span>${euro(t.net)}</span></div>
+      <div><span>${L.length} ${L.length===1?"Tür":"Türen"}</span><span>${euro(t.net)}</span></div>
       <div><span>Fracht und Verpackung</span><span>${euro(t.fr)}</span></div>
       <div class="tot"><span>Summe netto</span><span>${euro(t.sub)}</span></div>
       <div><span>MwSt. 19 %</span><span>${euro(t.vat)}</span></div>
@@ -1198,7 +1299,7 @@ function renderCheck(){
 function placeOrder(){
   const L=LIST();const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
   m.innerHTML=`<div class="mbox"><h2>Stimmen alle Maße und Eingaben?</h2><p class="help">Nach dem Abschicken kannst du nichts mehr ändern. Vergleiche jede Position noch einmal mit deiner Aufmaßtabelle.</p>
-  <div class="mlist">${L.map(d=>`<div class="mrow"><b>${esc(ttl(d))}</b><span>Rohbau ${num(d.rbB)} × ${num(d.rbH)} → Türblatt ${num(d.tbB)} × ${num(d.tbH)} mm</span><span>Wand ${esc(d.wd)} mm · DIN ${d.din==="L"?"links":"rechts"} · ${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</span></div>`).join("")}</div>
+  <div class="mlist">${L.map(d=>`<div class="mrow"><b>${esc(ttl(d))}</b>${d.art==="glas"?`<span>Ganzglastürblatt ${GLAS[d.gsize][5]} × ${GLAS[d.gsize][6]} mm (Zargenfalz ${GLAS[d.gsize][3]} × ${GLAS[d.gsize][4]})</span><span>DIN ${d.din==="L"?"links":"rechts"} · ${esc(lab("gart",d.gart))}</span>`:`<span>Rohbau ${num(d.rbB)} × ${num(d.rbH)} → Türblatt ${num(d.tbB)} × ${num(d.tbH)} mm</span><span>Wand ${esc(d.wd)} mm · DIN ${d.din==="L"?"links":"rechts"} · ${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</span>`}</div>`).join("")}</div>
   <label class="chk"><input type="checkbox" id="mOk"><span>Ich habe alle Maße, Öffnungsrichtungen und Ausstattungen geprüft.</span></label>
   <div class="mbtns"><button class="btn sec" id="mBack">Nochmal prüfen</button><button class="btn" id="mGo" disabled>Verbindlich bestellen</button></div></div>`;
   document.body.appendChild(m);document.documentElement.classList.add("locked");
@@ -1241,14 +1342,17 @@ function renderDone(){
       <dt>Bestell-Nr.</dt><dd class="ordno">${o.nr}</dd>
       <dt>Datum</dt><dd>${dt.toLocaleString("de-DE",{dateStyle:"medium",timeStyle:"short"})}</dd>
       <dt>Besteller</dt><dd>${esc(S.kunde.name)}, ${esc(S.kunde.klasse)}</dd>
-      <dt>Positionen</dt><dd>${S.doors.length} Futtertüren</dd>
+      <dt>Positionen</dt><dd>${S.doors.length} Türen</dd>
       <dt>Gesamt brutto</dt><dd class="mono">${euro(t.gross)}</dd>
       <dt>Lieferzeit</dt><dd>${lieferzeit()}</dd>
       <dt>Prüfung</dt><dd>${o.errs?o.errs+" offene Fehler bei Bestellung":"plausibel"}</dd><dt>Kontrollen</dt><dd>Türliste ${S.listChecks}×, Positionen ${S.doorChecks}×, Endprüfung ${o.checks}×</dd>
     </dl>
   </section>
   <section class="block">
-    <button class="btn block" id="pdfBtn">Bestellbestätigung als PDF speichern</button>
+    <div class="card teams"><div class="eyebrow">Abgabe</div><h3>PDF per Teams an deine Lehrkraft</h3>
+      <p class="help">Das PDF enthält Bestellbestätigung, Lieferschein und alle Positionen mit Ansicht.</p>
+      <ol class="help"><li>Tippe auf den Button unten. Am Handy öffnet sich das Teilen-Menü: wähle <b>Teams</b> und deine Lehrkraft. Am PC landet das PDF im Ordner Downloads.</li><li>Sonst: In Teams den Chat mit deiner Lehrkraft öffnen, auf die Büroklammer tippen und das PDF anhängen.</li></ol></div>
+    <button class="btn block" id="pdfBtn">PDF erstellen und in Teams senden</button>
     <div id="pdfMsg"></div>
     <p class="help" style="margin-top:14px">Die Bestellung ist abgeschickt und kann nicht mehr geändert werden.</p>
     <button class="btn sec block" id="resetBtn" style="color:var(--err)">Neue Bestellung beginnen (löscht alles)</button>
@@ -1294,6 +1398,29 @@ async function buildPdf(){
    "Kontrollen: Türliste "+S.listChecks+"×, Positionen "+S.doorChecks+"×, Endprüfung "+o.checks+"×. Bei Bestellung "+(o.errs?o.errs+" offene Fehler"+(o.fehler.length?" (Pos. "+o.fehler.join(", ")+")":"")+(o.fehltTueren?", Türen fehlen":""):"keine offenen Fehler")+"."]
    .forEach(n=>{const l=doc.splitTextToSize("• "+n,W-2*M-90);doc.text(l,M,yn);yn+=l.length*4});
   foot();
+  /* Lieferschein */
+  doc.addPage();head("Lieferschein");
+  {const wk=parseInt(lieferzeit(),10)||4,ld=new Date(dt.getTime()+wk*7*864e5);
+   const kw=(x=>{const t=new Date(Date.UTC(x.getFullYear(),x.getMonth(),x.getDate()));const dn=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-dn);const y1=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y1)/864e5+1)/7)})(ld);
+   let yy=28;doc.setFontSize(9.5);
+   [["Lieferschein-Nr.","LS-"+o.nr.slice(3)],["Zu Auftrag",o.nr],["Lieferadresse","Baustelle EFH Timo, 91710 Gunzenhausen"],["Liefertermin","KW "+kw+" / "+ld.getFullYear()+" (avisiert)"],["Besteller",S.kunde.name+" (Klasse "+S.kunde.klasse+")"],["Anlieferung","frei Baustelle, Abladen durch Fahrer"]].forEach(([k,v],i)=>{
+     const x=M+(i%2)*140,y2=yy+Math.floor(i/2)*5.5;doc.setTextColor(93,106,100);doc.setFont("helvetica","normal");doc.text(k,x,y2);doc.setTextColor(29,38,34);doc.setFont("helvetica","bold");doc.text(String(v),x+30,y2)});
+   yy+=20;let colli=0;
+   const body=LIST().map(d=>{const g=d.art==="glas";const r=rowOf(d);const pk=g?["1 Glastürblatt (auf Glasbock)","1 Beschlagkarton"]:["1 Türblatt","1 Zargensatz (Futter + Bekleidung)","1 Beschlagkarton"];colli+=pk.length;
+     return [r[0],"1 Stk.",(g?"Ganzglastürblatt ESG – ":"Futtertür – ")+r[1],g?r[2]+" mm, Zargenfalz "+r[4]+", "+r[9]:"Türblatt "+r[2]+", Wand "+r[3]+", "+r[9]+", "+r[8],pk.join("\n"),""]});
+   doc.autoTable({startY:yy,head:[["Pos.","Menge","Bezeichnung","Maße / Ausführung","Packstücke","geprüft"]],body,
+     styles:{font:"helvetica",fontSize:8,cellPadding:1.6,valign:"top",textColor:[29,38,34],lineColor:[213,219,214],lineWidth:.1},headStyles:{fillColor:[220,235,229],textColor:[29,38,34],fontStyle:"bold"},
+     columnStyles:{0:{cellWidth:12},1:{cellWidth:16},2:{cellWidth:62},4:{cellWidth:60},5:{cellWidth:16}},margin:{left:M,right:M},
+     didDrawCell:c=>{if(c.section==="body"&&c.column.index===5){doc.setDrawColor(29,38,34);doc.rect(c.cell.x+5,c.cell.y+1.8,4,4)}}});
+   yy=doc.lastAutoTable.finalY+7;doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text("Packstücke gesamt: "+colli,M,yy);
+   doc.setFont("helvetica","normal");doc.setFontSize(8.5);
+   const hin=["Ware bei Anlieferung sofort auf Vollständigkeit und Transportschäden prüfen. Schäden auf diesem Lieferschein vermerken."];
+   if(LIST().some(d=>d.art==="glas"))hin.push("Glastürblatt stehend lagern und transportieren, Kanten schützen. ESG kann nachträglich nicht bearbeitet werden.");
+   hin.push("Türblätter liegend und trocken lagern, nicht in Räumen mit frischem Estrich oder Putz (Feuchtigkeit).");
+   yy+=6;hin.forEach(h=>{const l=doc.splitTextToSize("• "+h,W-2*M);doc.text(l,M,yy);yy+=l.length*4.2});
+   yy=Math.max(yy+10,H-34);doc.setDrawColor(29,38,34);
+   [["Ware vollständig und unbeschädigt erhalten",M],["Fahrer / Lieferant",M+150]].forEach(([t2,x])=>{doc.line(x,yy,x+120,yy);doc.setFontSize(7.5);doc.setTextColor(93,106,100);doc.text("Datum, Unterschrift – "+t2,x,yy+4);doc.setTextColor(29,38,34)});
+   foot();}
   /* Detailseiten mit Türbildern: 4 Positionen je Seite */
   const LL=LIST();
   const imgs=await Promise.all(LL.map(d=>svgToPng(doorSvg(d,{stroke:"#26302b"}),300,516)));
@@ -1320,12 +1447,12 @@ async function savePdf(){
   const dl=await getDownloads();
   if(!dl){
     try{const f=new File([blob],name,{type:"application/pdf"});
-      if(navigator.canShare&&navigator.canShare({files:[f]})&&/iPhone|iPad|Android/i.test(navigator.userAgent)){await navigator.share({files:[f],title:name});pdfMsg("ok","PDF bereit: "+name+". Wähle „In Dateien sichern“ oder schicke es direkt an deine Lehrkraft.");return}}
+      if(navigator.canShare&&navigator.canShare({files:[f]})&&/iPhone|iPad|Android/i.test(navigator.userAgent)){await navigator.share({files:[f],title:name});pdfMsg("ok","Geteilt: "+name+". Prüfe in Teams, ob das PDF bei deiner Lehrkraft angekommen ist.");return}}
     catch(e){if(e&&e.name==="AbortError"){pdfMsg("warn","Teilen abgebrochen. Tippe noch einmal auf den Button.");return}}
-    try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);pdfMsg("ok","PDF gespeichert: "+name+" (Ordner Downloads)");return}
+    try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);pdfMsg("ok","PDF gespeichert: "+name+" (Ordner Downloads). Jetzt in Teams den Chat mit deiner Lehrkraft öffnen und das PDF anhängen.");return}
     catch(e){}
     pdfMsg("warn","Speichern ist in dieser Ansicht nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.");return}
-  try{await dl.save({filename:name,data:blob});pdfMsg("ok","PDF gespeichert: "+name)}
+  try{await dl.save({filename:name,data:blob});pdfMsg("ok","PDF gespeichert: "+name+". Jetzt in Teams den Chat mit deiner Lehrkraft öffnen und das PDF anhängen.")}
   catch(e){const c=e&&e.code;
     if(c==="declined")pdfMsg("warn","Speichern abgebrochen. Tippe noch einmal auf den Button, wenn du das PDF speichern willst.");
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
