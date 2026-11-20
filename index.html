@@ -144,7 +144,7 @@ details.info p{font-size:14px;margin:8px 0 0}
     <span class="panel p1"></span><span class="panel p2"></span>
     <span class="hinge h1"></span><span class="hinge h2"></span>
     <span class="plate"><span>Türen-</span><span>Konfigurator</span></span>
-    <span class="rosette"></span><span class="lever"></span><span class="keyhole"></span>
+    <span class="rosette"></span><span class="lever"></span><span class="keyhole"></span><span class="ikey" aria-hidden="true"><svg viewBox="0 0 40 40"><defs><linearGradient id="kG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3f5f6"/><stop offset="1" stop-color="#8f979b"/></linearGradient></defs><rect x="6" y="11" width="28" height="18" rx="9" fill="url(#kG)" stroke="#6d757a"/><circle cx="12" cy="20" r="3" fill="#3b2a1a" opacity=".55"/><rect x="18" y="18.5" width="12" height="3" rx="1.5" fill="#6d757a" opacity=".5"/></svg></span>
    </button>
   </div>
   <svg class="iwaves" viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden="true"><g class="ckwave"><path d="M-30 7q12.5-7 25 0t25 0 25 0 25 0 25 0 25 0 25 0 25 0 25 0 25 0" stroke="var(--logo-g)" stroke-width="4" fill="none" stroke-linecap="round"/></g><g class="ckwave2"><path d="M-30 16q12.5-6 25 0t25 0 25 0 25 0 25 0 25 0 25 0 25 0 25 0 25 0" stroke="#b5763a" stroke-width="3.2" fill="none" stroke-linecap="round"/></g></svg>
@@ -430,6 +430,56 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 .citem .cact{display:grid;gap:6px}
 .btn.sm{padding:7px 12px;font-size:14px;min-height:0}
 .btn.sec.cdel{color:var(--err)}.btn.sec.cdel.armed{background:var(--err);color:#fff;border-color:var(--err)}
+.opt.img{grid-template-columns:56px 1fr auto;gap:2px 12px}
+.opt.img .oi{grid-row:1/3;grid-column:1;width:56px;height:56px;background:var(--surface);border:1px solid var(--line);border-radius:8px;display:grid;place-items:center}
+.opt.img .oi svg{width:50px;height:50px}
+.opt.img .ol,.opt.img .od{grid-column:2}.opt.img .op{grid-column:3}
+.swatches{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.swatches .opt{grid-template-columns:60px 1fr}
+.swatches .sw{width:60px;height:40px;border-radius:5px;overflow:hidden;border:1px solid var(--line);grid-row:1/3;display:block}
+.swatches .sw svg{width:100%;height:100%;display:block}
+.sample{margin:4px 0 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);overflow:hidden}
+.sample .board{position:relative;height:120px}.sample .board svg{width:100%;height:100%;display:block}
+.sample .board .edge{position:absolute;left:0;right:0;bottom:0;height:10px;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.22))}
+.sample .scap{display:grid;padding:8px 12px}.sample .scap span{font-size:12px;color:var(--muted)}
+.sample.fan svg{width:100%;max-width:360px;height:auto;display:block;margin:6px auto 0}
+.blade{transform-origin:0 0;transform-box:view-box}
+.blade>g{transition:transform .35s ease}
+@media (prefers-reduced-motion:no-preference){.sample.fan .blade{animation:fanIn .7s cubic-bezier(.3,.1,.2,1) both}}
+@keyframes fanIn{from{transform:rotate(0deg)}}
+.sample:not(.fan) .board svg{animation:sxM .4s ease}
+.sx2{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:8px}
+.sx2 svg{width:100%;height:auto;display:block}.sx2 .cap{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.sx2.lu .through{animation:wv2 1.6s linear infinite}
+.sx2 .waves path{stroke-dasharray:6 4}
+.sx2.ab .through{stroke:var(--err);opacity:0}
+.sx2.ab .seal{animation:seal 4s ease-in-out infinite}
+.sx2.ab .pin{animation:pin 4s ease-in-out infinite}
+.sx2.ab .zarge{animation:zar 4s ease-in-out infinite}
+.sx2.ab .t1{animation:t1 4s infinite}.sx2.ab .t2{animation:t2 4s infinite}
+.sx2.ab .waves path:not(.through){animation:wv2 1.6s linear infinite}
+@keyframes wv2{to{stroke-dashoffset:-20}}
+@keyframes seal{0%,25%{transform:translateY(-4px)}45%,80%{transform:translateY(8px)}100%{transform:translateY(-4px)}}
+@keyframes pin{0%,25%{transform:translateX(0)}45%,80%{transform:translateX(-9px)}100%{transform:none}}
+@keyframes zar{0%,20%{transform:translateX(30px);opacity:.25}40%,85%{transform:translateX(0);opacity:1}100%{transform:translateX(30px);opacity:.25}}
+@keyframes t1{0%,30%{opacity:1}40%,85%{opacity:0}95%,100%{opacity:1}}
+@keyframes t2{0%,30%{opacity:0}40%,85%{opacity:1}95%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.sx2 *{animation:none!important}.sx2.ab .t1{opacity:0}.sx2.ab .seal{transform:translateY(8px)}.sx2.ab .pin{transform:translateX(-9px)}}
+.swatches{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.intro.notrans .leaf,.intro.notrans .scene,.intro.notrans .lever{transition:none!important}
+.ikey{position:absolute;right:calc(11% + clamp(3px,1vw,6px) - 21px);top:calc(57% - 18px);width:46px;height:46px;opacity:0;transform:scale(1.6);pointer-events:none}
+.ikey svg{width:100%;height:100%;display:block;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.intro.lock .ikey{animation:keyIn .45s ease forwards,keyTurn 1s ease-in-out .5s 1 forwards}
+@keyframes keyIn{to{opacity:1;transform:scale(1)}}
+@keyframes keyTurn{0%{transform:rotate(0)}40%{transform:rotate(-90deg)}50%{transform:rotate(-90deg)}60%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
+.intro.sent .ihint{background:#1f4d3f;color:#fff;animation:none}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(10,20,16,.55);display:grid;place-items:end center;padding:16px}
+@media (min-width:700px){.modal{place-items:center}}
+.mbox{background:var(--surface);color:var(--ink);border-radius:16px;padding:18px;width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;display:grid;gap:12px;animation:msgIn .3s ease}
+.mbox h2{margin:0}.mlist{display:grid;gap:8px}
+.mrow{display:grid;gap:2px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2)}
+.mrow span{font-size:13px;color:var(--muted);font-family:var(--f-mono)}
+.mbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 </style>
 <script>
 (function(){
@@ -466,8 +516,8 @@ const OPT={
 };
 const FARBEN={
   cpl:[["weiss","Weiß","#f3f3ef",0],["grau","Lichtgrau","#d2d5d1",0],["eiche","Eiche hell (Dekor)","#d6b688",20]],
-  lack:[["r9016","RAL 9016 Verkehrsweiß","#f6f6f1",0],["r9010","RAL 9010 Reinweiß","#f0ebdc",0],["r7035","RAL 7035 Lichtgrau","#c9cec9",0],["r7016","RAL 7016 Anthrazitgrau","#3b4146",40]],
-  furn:[["eiche","Eiche natur","#c49e66",0],["esche","Esche weiß","#e6dbc6",0],["nuss","Nussbaum","#6a4a33",60]]
+  lack:[["r9016","RAL 9016 Verkehrsweiß","#f6f6f1",0],["r9010","RAL 9010 Reinweiß","#f0ebdc",0],["r9001","RAL 9001 Cremeweiß","#e9e0cc",0],["r7035","RAL 7035 Lichtgrau","#c9cec9",0],["r7044","RAL 7044 Seidengrau","#b8b4a8",20],["r7016","RAL 7016 Anthrazitgrau","#3b4146",40]],
+  furn:[["eiche","Eiche natur","#c49e66",0],["esche","Esche weiß","#e6dbc6",0],["ahorn","Ahorn","#e8d3a8",25],["nuss","Nussbaum","#6a4a33",60]]
 };
 const lab=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[1]:"–"};
 const delta=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[3]:0};
@@ -674,6 +724,7 @@ menuBtn.addEventListener("click",()=>{mNav.hidden=!mNav.hidden;menuBtn.setAttrib
 document.addEventListener("click",e=>{const b=e.target.closest("[data-nav]");if(!b)return;const n=b.dataset.nav;
   if(n==="produkte")go({name:"home",anchor:"produkte"});else if(n==="check"&&S.order)go({name:"done"});else go({name:n})});
 function render(){
+  if(S.order&&["home","door","check"].includes(view.name))view={name:"done"};
   const done=doneCount();
   const pp=document.getElementById("progPill");if(pp.textContent!==String(done)){if(+pp.textContent<done)bumpCart();pp.textContent=done}
   document.querySelectorAll(".navlink").forEach(n=>n.classList.toggle("on",n.dataset.nav===view.name||(n.dataset.nav==="check"&&view.name==="done")));
@@ -787,12 +838,107 @@ function renderService(){
 }
 
 const priceTag=v=>v===0?"inkl.":(v>0?"+":"−")+euro(Math.abs(v)).replace(/,00/,"");
+/* ---------- Muster: Farbfächer, Furnier, Beschläge, Schall-Ex ---------- */
+let UID=0;
+const METAL={vern:["#eef1f3","#aeb5ba","#7c858b"],edel:["#e3e6e8","#a3a9ad","#6d757a"],schw:["#55595c","#2a2d2f","#111314"]};
+function grainSvg(f,w,h,big){
+  const id="g"+(UID++),c=f[2],k=f[0];
+  const dark=shade(c,.78),lite=shade(c,1.08);
+  let s=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${lite}"/><stop offset=".5" stop-color="${c}"/><stop offset="1" stop-color="${shade(c,.94)}"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#${id})"/>`;
+  const wood=(k==="eiche"||k==="esche"||k==="nuss"||k==="ahorn")&&(f.ofl!=="cpl");
+  if(k==="eiche"||k==="esche"||k==="nuss"||k==="ahorn"){
+    const n=big?18:9,amp=k==="ahorn"?1.2:k==="nuss"?5:3.4;
+    for(let i=0;i<n;i++){const y=(i+.5)*h/n+(i%3-1)*1.5;const a=amp*(1+(i%4)/3);
+      s+=`<path d="M0 ${y.toFixed(1)} C ${w*.25} ${(y-a).toFixed(1)}, ${w*.5} ${(y+a).toFixed(1)}, ${w*.75} ${(y-a*.6).toFixed(1)} S ${w} ${(y+a*.4).toFixed(1)}, ${w} ${y.toFixed(1)}" stroke="${dark}" stroke-width="${(i%3===0?1.1:.55)*(big?1:.8)}" fill="none" opacity="${k==="ahorn"?.35:.55}"/>`}
+    if(k==="eiche")for(let i=0;i<(big?14:6);i++){const x=(i*37+11)%w,y=(i*23+7)%h;s+=`<ellipse cx="${x}" cy="${y}" rx="${big?7:4}" ry="1.1" fill="${lite}" opacity=".6"/>`}
+    if(k==="nuss")s+=`<ellipse cx="${w*.62}" cy="${h*.5}" rx="${w*.18}" ry="${h*.16}" fill="none" stroke="${shade(c,.7)}" stroke-width="1" opacity=".5"/>`;
+  }
+  return s+`<rect width="${w}" height="${h}" fill="url(#${id})" opacity="0"/></svg>`;
+}
+function chip(d,f){
+  if(d.ofl==="lack")return `<svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" rx="4" fill="${f[2]}"/><path d="M0 0h60v14C40 20 20 8 0 14z" fill="#fff" opacity=".18"/><text x="56" y="35" text-anchor="end" font-size="8" font-family="IBM Plex Mono, monospace" fill="${f[0]==="r7016"?"#fff":"#333"}" opacity=".75">${f[0].slice(1)}</text></svg>`;
+  return grainSvg(f,60,40,false);
+}
+function fanSvg(d){
+  const L=FARBEN.lack,sel=L.findIndex(f=>f[0]===d.farbe),n=L.length;
+  let s=`<svg viewBox="0 0 320 170" role="img" aria-label="Farbfächer RAL"><g transform="translate(160 160)">`;
+  const order=[...L.keys()].filter(i=>i!==sel).concat(sel>=0?[sel]:[]);
+  order.forEach(i=>{const f=L[i],ang=-60+i*120/(n-1),on=i===sel;
+    s+=`<g class="blade${on?" on":""}" style="transform:rotate(${ang}deg)"><g style="transform:translateY(${on?-10:0}px)"><rect x="-17" y="-150" width="34" height="150" rx="5" fill="#fbfaf6" stroke="#9aa09c" stroke-width=".8"/><rect x="-15" y="-148" width="30" height="96" rx="3" fill="${f[2]}" stroke="rgba(0,0,0,.12)"/><text x="0" y="-136" text-anchor="middle" font-size="9" font-weight="700" font-family="IBM Plex Mono, monospace" fill="#333">${f[0].slice(1)}</text></g></g>`});
+  s+=`<circle r="7" fill="#b9bec2" stroke="#6d757a"/><circle r="2.5" fill="#6d757a"/></g></svg>`;
+  return s;
+}
+function sampleBox(d){
+  const f=farbe(d);
+  if(d.ofl==="lack")return `<div class="sample fan">${fanSvg(d)}<div class="scap"><b>${esc(f[1])}</b><span>Farbfächer RAL · seidenmatt lackiert</span></div></div>`;
+  const what=d.ofl==="furn"?"Furniermuster · Echtholz, jede Tür ein Unikat":"Dekormuster · CPL-Schichtstoff";
+  return `<div class="sample"><div class="board">${grainSvg(Object.assign([...f],{ofl:d.ofl}),320,120,true)}<span class="edge"></span></div><div class="scap"><b>${esc(f[1])}</b><span>${what}</span></div></div>`;
+}
+/* Beschlag-Muster (56×56) */
+function hingeIco(parts,d){const m=METAL[d.bandfarbe]||METAL.vern,id="m"+(UID++);
+  let s=`<svg viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${m[2]}"/><stop offset=".35" stop-color="${m[0]}"/><stop offset="1" stop-color="${m[1]}"/></linearGradient></defs>`;
+  const top=8,hh=40,seg=hh/parts;
+  s+=`<rect x="6" y="${top+seg*.5}" width="16" height="3.4" rx="1.4" fill="${m[1]}"/><rect x="34" y="${top+hh-seg*.5-3}" width="16" height="3.4" rx="1.4" fill="${m[1]}"/>`;
+  for(let i=0;i<parts;i++)s+=`<rect x="22" y="${top+i*seg+.6}" width="12" height="${seg-1.2}" rx="2.5" fill="url(#${id})" stroke="${m[2]}" stroke-width=".6"/>`;
+  s+=`<circle cx="28" cy="${top-1.5}" r="2.6" fill="url(#${id})" stroke="${m[2]}" stroke-width=".5"/>`;
+  return s+`</svg>`}
+function concealedIco(d){const m=METAL[d.bandfarbe]||METAL.vern;
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="6" y="14" width="18" height="28" rx="2" fill="${m[1]}" stroke="${m[2]}"/><rect x="32" y="14" width="18" height="28" rx="2" fill="${m[1]}" stroke="${m[2]}"/><path d="M22 20l12 16M22 36l12-16" stroke="${m[2]}" stroke-width="3" stroke-linecap="round"/><circle cx="28" cy="28" r="2.4" fill="${m[0]}" stroke="${m[2]}"/><g fill="${m[2]}"><circle cx="15" cy="18" r="1.4"/><circle cx="15" cy="38" r="1.4"/><circle cx="41" cy="18" r="1.4"/><circle cx="41" cy="38" r="1.4"/></g></svg>`}
+function dotIco(k){const m=METAL[k],id="d"+(UID++);return `<svg viewBox="0 0 56 56" aria-hidden="true"><defs><radialGradient id="${id}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${m[0]}"/><stop offset=".6" stop-color="${m[1]}"/><stop offset="1" stop-color="${m[2]}"/></radialGradient></defs><circle cx="28" cy="28" r="17" fill="url(#${id})" stroke="${m[2]}"/></svg>`}
+function leverIco(kind){const black=kind==="schw",m=black?METAL.schw:METAL.edel,id="l"+(UID++);
+  let s=`<svg viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m[0]}"/><stop offset="1" stop-color="${m[2]}"/></linearGradient></defs>`;
+  if(kind==="schild")s+=`<rect x="10" y="6" width="14" height="44" rx="7" fill="url(#${id})" stroke="${m[2]}" stroke-width=".7"/><path d="M15.5 38.5a1.8 1.8 0 1 1 3 0l1 5h-5z" fill="${m[2]}"/>`;
+  else s+=`<circle cx="17" cy="22" r="9" fill="url(#${id})" stroke="${m[2]}" stroke-width=".7"/><circle cx="17" cy="42" r="5" fill="url(#${id})" stroke="${m[2]}" stroke-width=".7"/><circle cx="17" cy="42" r="1.6" fill="${m[2]}"/>`;
+  s+=black?`<path d="M14 18h30v7H21v1h-7z" fill="url(#${id})" stroke="${m[2]}" stroke-width=".7"/>`:`<path d="M14 19.5h28a3.5 3.5 0 0 1 0 7H21" fill="none" stroke="url(#${id})" stroke-width="5" stroke-linecap="round"/><path d="M14 19.5h28a3.5 3.5 0 0 1 0 7H21" fill="none" stroke="${m[2]}" stroke-width=".6" opacity=".5"/>`;
+  return s+`</svg>`}
+function lockIco(kind){const st="#5d666b";
+  let s=`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="6" width="28" height="44" rx="2" fill="#c7ccce" stroke="${st}"/><rect x="40" y="3" width="5" height="50" rx="1.5" fill="#e3e6e8" stroke="${st}"/>`;
+  s+=`<path d="M45 14h5l3 3-3 3h-5z" fill="#b9bec2" stroke="${st}" stroke-width=".7"/><circle cx="30" cy="17" r="2.6" fill="${st}"/>`;
+  if(kind==="bb")s+=`<path d="M28.6 33a2.6 2.6 0 1 1 2.8 0l1.2 7h-5.2z" fill="${st}"/><rect x="45" y="32" width="4" height="7" fill="#b9bec2" stroke="${st}" stroke-width=".7"/>`;
+  if(kind==="pz")s+=`<path d="M30 30.5a3.2 3.2 0 1 1 0 .01M27.8 33h4.4v8h-4.4z" fill="${st}"/><circle cx="30" cy="30.5" r="3.2" fill="${st}"/><rect x="45" y="32" width="6" height="7" fill="#b9bec2" stroke="${st}" stroke-width=".7"/>`;
+  if(kind==="wc")s+=`<rect x="27.2" y="31" width="5.6" height="5.6" fill="${st}"/><rect x="45" y="31" width="6" height="7" fill="#b9bec2" stroke="${st}" stroke-width=".7"/><circle cx="21" cy="44" r="3" fill="#c0392b" opacity=".85"/>`;
+  return s+`</svg>`}
+function strikeIco(kind){const st="#5d666b",f="#d4d8da";
+  if(kind==="lappen")return `<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M20 4h10v48H20z" fill="${f}" stroke="${st}"/><path d="M30 18h14a4 4 0 0 1 0 14H30" fill="${f}" stroke="${st}"/><rect x="23" y="20" width="4" height="10" rx="1" fill="${st}"/><rect x="23" y="35" width="4" height="7" rx="1" fill="${st}"/><circle cx="25" cy="9" r="1.6" fill="${st}"/><circle cx="25" cy="47" r="1.6" fill="${st}"/></svg>`;
+  if(kind==="winkel")return `<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M18 4h10v48H18z" fill="${f}" stroke="${st}"/><path d="M28 4h12v48H28z" fill="#bfc5c8" stroke="${st}"/><rect x="21" y="20" width="4" height="10" rx="1" fill="${st}"/><rect x="21" y="35" width="4" height="7" rx="1" fill="${st}"/><circle cx="34" cy="25" r="3.4" fill="#e3e6e8" stroke="${st}"/><path d="M32 25h4" stroke="${st}" stroke-width="1.2"/><path d="M44 21l4 4-4 4" fill="none" stroke="var(--accent)" stroke-width="1.6"/></svg>`;
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M20 4h10v48H20z" fill="${f}" stroke="${st}"/><path d="M30 18h12a4 4 0 0 1 0 14H30" fill="${f}" stroke="${st}"/><rect x="23" y="20" width="4" height="10" rx="1" fill="${st}"/><rect x="23" y="35" width="4" height="7" rx="1" fill="${st}"/><path d="M14 4v48" stroke="#2b2b2b" stroke-width="4" stroke-linecap="round"/><path d="M14 4v48" stroke="#555" stroke-width="1.5" stroke-dasharray="2 3"/></svg>`;
+}
+function bodenIco(k){return k==="absenk"?`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="8" y="6" width="40" height="38" fill="#d9c3a0" stroke="#6b5a45"/><rect x="12" y="38" width="32" height="10" fill="#2f3335"/><path d="M4 50h48" stroke="#6b5a45" stroke-width="3"/></svg>`:`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="8" y="6" width="40" height="36" fill="#d9c3a0" stroke="#6b5a45"/><path d="M4 50h48" stroke="#6b5a45" stroke-width="3"/><path d="M14 46h28" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 2"/></svg>`}
+const OPTICO={
+  bandtyp:{e2:d=>hingeIco(2,d),e3:d=>hingeIco(3,d),verd:d=>concealedIco(d)},
+  bandfarbe:{vern:()=>dotIco("vern"),edel:()=>dotIco("edel"),schw:()=>dotIco("schw")},
+  drk:{rund:()=>leverIco("rund"),schild:()=>leverIco("schild"),schw:()=>leverIco("schw")},
+  schloss:{bb:()=>lockIco("bb"),pz:()=>lockIco("pz"),wc:()=>lockIco("wc")},
+  schliess:{lappen:()=>strikeIco("lappen"),winkel:()=>strikeIco("winkel"),dicht:()=>strikeIco("dicht")},
+  boden:{luft:()=>bodenIco("luft"),absenk:()=>bodenIco("absenk")}
+};
+/* Schall-Ex: Schnitt Türunterkante, Dichtung senkt sich beim Schließen */
+function schallexSvg(d){
+  const ab=d.boden==="absenk";
+  return `<div class="sx2 ${ab?"ab":"lu"}"><svg viewBox="0 0 340 170" role="img" aria-label="${ab?"Absenkdichtung: senkt sich beim Schließen auf den Boden":"Offene Bodenluft unter dem Türblatt"}" font-family="Barlow, sans-serif">
+  <defs><pattern id="sxF${UID}" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#a89a85" stroke-width="1.2"/></pattern></defs>
+  <rect x="0" y="134" width="340" height="36" fill="url(#sxF${UID++})"/><line x1="0" y1="134" x2="340" y2="134" stroke="var(--ink)" stroke-width="1.6"/>
+  <rect x="120" y="0" width="100" height="${ab?126:124}" fill="#d9c3a0" stroke="var(--ink)" stroke-width="1.2"/>
+  <rect x="120" y="0" width="5" height="124" fill="#7b5a3a"/><rect x="215" y="0" width="5" height="124" fill="#7b5a3a"/>
+  ${ab?`<rect x="150" y="94" width="40" height="32" fill="var(--surface)" stroke="var(--ink)" stroke-width=".8"/>
+  <g class="seal"><rect x="153" y="98" width="34" height="22" rx="2" fill="#8c9599" stroke="var(--ink)" stroke-width=".8"/><rect x="155" y="118" width="30" height="8" rx="3" fill="#2f3335"/></g>
+  <g class="pin"><rect x="220" y="104" width="10" height="6" rx="2" fill="#b9bec2" stroke="var(--ink)" stroke-width=".7"/></g>
+  <rect class="zarge" x="232" y="20" width="14" height="114" fill="#cdb48c" stroke="var(--ink)" stroke-width=".8"/>`:""}
+  <g class="waves" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M40 128 q8 -6 16 0 t16 0 t16 0 t16 0"/><path d="M40 118 q8 -6 16 0 t16 0 t16 0"/>
+    <path class="through" d="M222 129 q8 -6 16 0 t16 0 t16 0 t16 0"/>
+  </g>
+  <g font-size="12" fill="var(--ink)"><text x="170" y="40" text-anchor="middle" font-weight="700">Türblatt</text><text x="170" y="55" text-anchor="middle" font-size="10.5">(Schnitt unten)</text>
+  ${ab?`<g class="t1"><text x="6" y="40" font-weight="700">Tür offen:</text><text x="6" y="55">Dichtung oben</text></g><g class="t2"><text x="6" y="40" font-weight="700">Tür zu:</text><text x="6" y="55">Dichtung liegt</text><text x="6" y="70">auf dem Boden</text></g><text x="252" y="40" font-size="11">Auslöser drückt</text><text x="252" y="54" font-size="11">gegen die Zarge</text>`:`<text x="6" y="40" font-weight="700">ca. 7 mm Luft:</text><text x="6" y="55">Schall und Zug</text><text x="6" y="70">gehen durch</text>`}</g>
+  </svg><div class="cap">${ab?"Absenkdichtung (Schall-Ex): schließt den Spalt am Boden, ohne über den Boden zu schleifen":"Ohne Absenkdichtung bleibt unten ein Spalt"}</div></div>`;
+}
 function radios(key,d){
   return OPT[key].map(o=>{const dis=disabled(key,o[0],d);
-    return `<label class="opt"><input type="radio" name="${key}" value="${o[0]}" ${d[key]===o[0]?"checked":""} ${dis?"disabled":""}><span class="ol">${o[1]}</span><span class="od">${o[2]}</span><span class="op">${priceTag(o[3])}</span></label>`}).join("");
+    const ic=OPTICO[key]&&OPTICO[key][o[0]];
+    return `<label class="opt${ic?" img":""}"><input type="radio" name="${key}" value="${o[0]}" ${d[key]===o[0]?"checked":""} ${dis?"disabled":""}>${ic?`<span class="oi">${ic(d)}</span>`:""}<span class="ol">${o[1]}</span><span class="od">${o[2]}</span><span class="op">${priceTag(o[3])}</span></label>`}).join("");
 }
 function swatches(d){
-  return FARBEN[d.ofl].map(f=>`<label class="opt"><input type="radio" name="farbe" value="${f[0]}" ${d.farbe===f[0]?"checked":""}><span class="sw" style="background:${f[2]}"></span><span class="ol">${f[1]}</span><span class="op">${priceTag(f[3])}</span></label>`).join("");
+  return FARBEN[d.ofl].map(f=>`<label class="opt"><input type="radio" name="farbe" value="${f[0]}" ${d.farbe===f[0]?"checked":""}><span class="sw">${chip(d,f)}</span><span class="ol">${f[1]}</span><span class="op">${priceTag(f[3])}</span></label>`).join("");
 }
 function dinSvg(side){
   const hx=side==="L"?14:96, gx=side==="L"?88:22;
@@ -860,7 +1006,7 @@ function renderDoor(id){
     <div class="sect${SX[id]!==d.bauart+d.mittel+d.deck?" anim":""}">${sectSvg(d)}<div class="cap">Horizontalschnitt durch das Türblatt (schematisch)</div></div>`)}
   ${step(5,"Schallschutz &amp; Bodenabschluss",`
     <div class="opts">${radios("ss",d)}</div>
-    <div class="eyebrow sub-eyebrow">Bodenabschluss</div><div class="opts">${radios("boden",d)}</div>
+    <div class="eyebrow sub-eyebrow">Bodenabschluss</div><div class="opts">${radios("boden",d)}</div>${schallexSvg(d)}
     ${d.ss!=="none"?`<p class="help">Für Schallschutz sind schweres Türblatt, Absenkdichtung und 3 Bänder vorgeschrieben. Diese Optionen sind deshalb gesetzt.</p>`:""}`)}
   ${step(6,"Lichtausschnitt",`
     <div class="opts">${radios("la",d)}</div>
@@ -868,7 +1014,7 @@ function renderDoor(id){
     <p class="help">Lichtausschnitte werden ab Werk gefertigt und lassen sich nicht nachträglich einschneiden.</p>`)}
   ${step(7,"Oberfläche &amp; Farbe",`
     <div class="opts">${radios("ofl",d)}</div>
-    <div class="eyebrow sub-eyebrow">Farbe / Dekor</div><div class="opts swatches">${swatches(d)}</div>
+    <div class="eyebrow sub-eyebrow">${d.ofl==="lack"?"Farbton (RAL)":d.ofl==="furn"?"Holzart":"Dekor"}</div>${sampleBox(d)}<div class="opts swatches">${swatches(d)}</div>
     <p class="help">Gilt für Türblatt und Zarge.</p>`)}
   ${step(8,"Beschläge",`
     <div class="eyebrow">Bänder</div><div class="opts">${radios("bandtyp",d)}</div>
@@ -1050,11 +1196,37 @@ function renderCheck(){
 }
 
 function placeOrder(){
+  const L=LIST();const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<div class="mbox"><h2>Stimmen alle Maße und Eingaben?</h2><p class="help">Nach dem Abschicken kannst du nichts mehr ändern. Vergleiche jede Position noch einmal mit deiner Aufmaßtabelle.</p>
+  <div class="mlist">${L.map(d=>`<div class="mrow"><b>${esc(ttl(d))}</b><span>Rohbau ${num(d.rbB)} × ${num(d.rbH)} → Türblatt ${num(d.tbB)} × ${num(d.tbH)} mm</span><span>Wand ${esc(d.wd)} mm · DIN ${d.din==="L"?"links":"rechts"} · ${esc(lab("ofl",d.ofl))}, ${esc(farbe(d)[1])}</span></div>`).join("")}</div>
+  <label class="chk"><input type="checkbox" id="mOk"><span>Ich habe alle Maße, Öffnungsrichtungen und Ausstattungen geprüft.</span></label>
+  <div class="mbtns"><button class="btn sec" id="mBack">Nochmal prüfen</button><button class="btn" id="mGo" disabled>Verbindlich bestellen</button></div></div>`;
+  document.body.appendChild(m);document.documentElement.classList.add("locked");
+  const close=()=>{m.remove();document.documentElement.classList.remove("locked")};
+  m.querySelector("#mOk").addEventListener("change",e=>{m.querySelector("#mGo").disabled=!e.target.checked});
+  m.querySelector("#mBack").addEventListener("click",close);
+  m.addEventListener("click",e=>{if(e.target===m)close()});
+  m.querySelector("#mGo").addEventListener("click",()=>{close();submitOrder()});
+  setTimeout(()=>{try{m.querySelector("#mBack").focus()}catch(e){}},50);
+}
+function outro(cb){
+  const intro=document.getElementById("intro");if(RM||!intro){cb();return}
+  const b3=intro.querySelector(".isign .b3"),hint=document.getElementById("ihint"),lt=intro.querySelector(".ilight span");
+  b3.textContent="Vielen Dank für Ihren Auftrag!";hint.textContent="Bestellung wird übermittelt …";lt.textContent="Danke!";
+  intro.className="intro open notrans";intro.hidden=false;document.documentElement.classList.add("locked");window.scrollTo(0,0);
+  void intro.offsetWidth;intro.classList.remove("notrans");
+  setTimeout(()=>intro.classList.remove("open"),500);
+  setTimeout(()=>{intro.classList.add("lock");hint.textContent="Tür wird abgeschlossen …"},1900);
+  setTimeout(()=>{hint.textContent="Bestellung abgeschickt ✓";intro.classList.add("sent")},3500);
+  setTimeout(()=>{cb();intro.classList.add("gone")},4500);
+  setTimeout(()=>{intro.hidden=true;intro.className="intro";document.documentElement.classList.remove("locked")},4900);
+}
+function submitOrder(){
   const r=checkAll();
   const now=new Date();
   const nr="TA-"+String(now.getFullYear()).slice(2)+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0")+"-"+Math.floor(1000+Math.random()*9000);
   S.order={nr,date:now.toISOString(),errs:r.errs,checks:S.checks,fehler:LIST().filter(d=>r.per[d.id]&&r.per[d.id].E.length).map(d=>num(d.pos)??"?"),fehltTueren:r.glob.some(g=>g.c==="err")};
-  save();go({name:"done"});
+  save();outro(()=>go({name:"done"}));
 }
 
 function renderDone(){
@@ -1078,11 +1250,14 @@ function renderDone(){
   <section class="block">
     <button class="btn block" id="pdfBtn">Bestellbestätigung als PDF speichern</button>
     <div id="pdfMsg"></div>
-    <button class="btn sec block" id="editBtn">Bestellung ändern</button>
+    <p class="help" style="margin-top:14px">Die Bestellung ist abgeschickt und kann nicht mehr geändert werden.</p>
+    <button class="btn sec block" id="resetBtn" style="color:var(--err)">Neue Bestellung beginnen (löscht alles)</button>
   </section>
   </div>`;
   bar.hidden=true;
-  document.getElementById("editBtn").addEventListener("click",()=>{S.order=null;save();go({name:"home"})});
+  const rb=document.getElementById("resetBtn");rb.addEventListener("click",()=>{
+    if(!rb.dataset.armed){rb.dataset.armed="1";rb.textContent="Wirklich alles löschen? Nochmal tippen";return}
+    S=fresh();save();go({name:"home"})});
   document.getElementById("pdfBtn").addEventListener("click",savePdf);
 }
 
