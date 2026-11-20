@@ -422,6 +422,14 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 .mtable .unit input{padding-left:10px;padding-right:32px;font-size:16px;min-width:0;width:100%}
 .mtable .unit span{right:9px;font-size:12px}
 .mtable .rl{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+.cartlist{display:grid;gap:10px}
+.citem{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.citem .cimg svg{width:44px;height:auto;display:block}
+.citem .cinfo{display:grid;gap:2px;min-width:0}.citem .cinfo b{font-size:15px}.citem .cinfo span{font-size:13px;color:var(--muted)}
+.citem .cinfo .cpr{font-family:var(--f-mono);color:var(--ink);font-size:14px}
+.citem .cact{display:grid;gap:6px}
+.btn.sm{padding:7px 12px;font-size:14px;min-height:0}
+.btn.sec.cdel{color:var(--err)}.btn.sec.cdel.armed{background:var(--err);color:#fff;border-color:var(--err)}
 </style>
 <script>
 (function(){
@@ -987,8 +995,9 @@ function renderCheck(){
   <section class="block">
     <div class="eyebrow">Warenkorb</div>
     <h1>Bestellmaske</h1>
-    <p class="lede">Deine Bestellliste Futtertüren: alle Positionen auf einen Blick. Tabelle seitlich wischen, eine Zeile antippen, um die Tür zu ändern.</p>
+    <p class="lede">Deine Bestellliste Futtertüren: alle Positionen auf einen Blick. Oben kannst du Türen ändern oder aus dem Warenkorb entfernen. Die Tabelle darunter lässt sich seitlich wischen.</p>
   </section>
+  ${L.length?`<section class="block cartlist" aria-label="Positionen im Warenkorb">${L.map(d=>`<div class="citem" data-cid="${d.id}"><div class="cimg">${doorSvg(d)}</div><div class="cinfo"><b>${esc(ttl(d))}</b><span>${isDone(d)?esc(num(d.tbB)+" × "+num(d.tbH)+" mm · DIN "+(d.din==="L"?"links":"rechts")):"noch unvollständig"}</span><span class="cpr">${euro(price(d).total)}</span></div><div class="cact"><button class="btn sec sm" data-edit="${d.id}">Ändern</button><button class="btn sec sm cdel" data-del="${d.id}" aria-label="${esc(ttl(d))} entfernen">Entfernen</button></div></div>`).join("")}</section>`:""}
   <section class="block"><div class="tscroll"><table class="bm"><thead><tr>${COLS.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>
     ${L.length?"":`<tr><td colspan="16">Noch keine Positionen angelegt.</td></tr>`}
     ${L.map(d=>`<tr data-id="${d.id}" class="${lc&&lc.per[d.id]&&lc.per[d.id].E.length?"err":""}" style="cursor:pointer">${rowOf(d).map((c,i)=>`<td class="${i===15?"pr":(NCOL.includes(i)?"n":"")}">${esc(c)}</td>`).join("")}</tr>`).join("")}
@@ -1020,6 +1029,13 @@ function renderCheck(){
   </section>
   </div>`;
   app.querySelectorAll("tr[data-id]").forEach(r=>r.addEventListener("click",()=>go({name:"door",id:+r.dataset.id})));
+  app.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>go({name:"door",id:+b.dataset.edit})));
+  app.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+    const id=+b.dataset.del;
+    if(!b.dataset.armed){app.querySelectorAll("[data-del]").forEach(x=>{delete x.dataset.armed;x.textContent="Entfernen";x.classList.remove("armed")});b.dataset.armed="1";b.textContent="Wirklich?";b.classList.add("armed");return}
+    const it=b.closest(".citem");const y=window.scrollY;
+    const fin=()=>{S.doors=S.doors.filter(x=>x.id!==id);S.order=null;S.lastCheck=null;save();render();window.scrollTo(0,y)};
+    if(RM||!it.animate)fin();else it.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX(60px)"}],{duration:280,easing:"ease-in"}).onfinish=fin}));
   document.getElementById("runCheck").addEventListener("click",()=>{
     S.checks++;S.lastCheck=checkAll();save();renderCheck();
     const el=document.getElementById("runCheck");if(el)el.scrollIntoView({block:"start"})});
