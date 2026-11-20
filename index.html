@@ -747,7 +747,7 @@ function render(){
   const done=doneCount();
   const pp=document.getElementById("progPill");if(pp.textContent!==String(done)){if(+pp.textContent<done)bumpCart();pp.textContent=done}
   document.querySelectorAll(".navlink").forEach(n=>n.classList.toggle("on",n.dataset.nav===view.name||(n.dataset.nav==="check"&&view.name==="done")));
-  ({home:renderHome,door:()=>byId(view.id)?renderDoor(view.id):(view={name:"home"},renderHome()),check:renderCheck,done:renderDone,service:renderService})[view.name]();
+  ({home:renderHome,door:()=>byId(view.id)?renderDoor(view.id):(view={name:"home"},renderHome()),check:renderCheck,done:renderDone,service:renderService,lehrer:renderLehrer})[view.name]();
 }
 const crumbs=list=>`<nav class="crumbs" aria-label="Brotkrumen">${list.map((c,i)=>i<list.length-1?`<button data-nav="${c[1]}">${c[0]}</button><span>›</span>`:`<span>${c[0]}</span>`).join("")}</nav>`;
 const coSteps=n=>`<div class="costeps">${["Warenkorb","Prüfung & Angaben","Bestätigung"].map((t,i)=>`<span class="${i+1===n?"on":(i+1<n?"ok":"")}">${i+1<n?"✓ ":(i+1)+" "}${t}</span>`).join("")}</div>`;
@@ -837,6 +837,68 @@ function listResHtml(r){
   h+=bad.map(d=>`<div class="msg err"><b>${esc(ttl(d))}:</b> ${esc(r.per[d.id].E.join(" "))}</div>`).join("");
   if(!r.errs)h+=`<div class="msg ok"><svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Die Türliste passt zum Grundriss. Weiter mit den Maßen.</div>`;
   return `<div class="help">Prüfung Nr. ${S.listChecks}</div>`+h;
+}
+/* ---------- Lehrerzugang (versteckt: 5× auf „Stand“ im Footer tippen oder #lehrer) ---------- */
+const LNAMES={"1":["Windfang","EG"],"2":["Bad","EG"],"4":["Küche","EG"],"5":["Eltern","OG"],"6":["Bad","OG"],"7":["Kind 2","OG"],"8":["Kind 1","OG"]};
+const LWISH={LA:"Lichtausschnitt (Fenster auf Augenhöhe)",BAD:"WC-Schloss empfohlen",SS:"Schallschutz SK 1/2, Absenkdichtung, 3 Bänder, Dichtungs-Schließblech","":"–"};
+let teacherOK=false;
+function pinHash(p){let h=2166136261;for(const c of "tk-altmuehltal:"+p){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(16)}
+function askPin(){
+  if(teacherOK){go({name:"lehrer"});return}
+  const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<div class="mbox" style="max-width:340px"><h2>Lehrerzugang</h2><label class="f">PIN<input type="password" inputmode="numeric" id="lPin" autocomplete="off"></label><div class="msg err" id="lErr" hidden>PIN falsch.</div><div class="mbtns"><button class="btn sec" id="lNo">Abbrechen</button><button class="btn" id="lGo">Öffnen</button></div></div>`;
+  document.body.appendChild(m);const inp=m.querySelector("#lPin");setTimeout(()=>inp.focus(),50);
+  const close=()=>m.remove();
+  const tryIt=()=>{if(pinHash(inp.value.trim())==="948d3146"){teacherOK=true;close();go({name:"lehrer"})}else{m.querySelector("#lErr").hidden=false;inp.value="";inp.focus()}};
+  m.querySelector("#lGo").addEventListener("click",tryIt);inp.addEventListener("keydown",e=>{if(e.key==="Enter")tryIt()});
+  m.querySelector("#lNo").addEventListener("click",close);m.addEventListener("click",e=>{if(e.target===m)close()});
+}
+function lehrerRows(){
+  return ["1","2","4","5","6","7","8"].map(k=>{const s=SOLL[k],b=DINB[s[2]],h=DINH[s[3]];
+    return {pos:k,raum:LNAMES[k][0]+" ("+LNAMES[k][1]+")",rb:s[0]+" × "+s[1],wd:s[6],din:"DIN "+s[7],brm:s[2]+" × "+s[3],tb:b[1]+" × "+h[1],zf:b[2]+" × "+h[2],bk:b[3]+" × "+h[3],fa:b[4]+" × "+h[4],ld:b[5]+" × "+h[5],wish:LWISH[s[8]]}});
+}
+function renderLehrer(){
+  if(!teacherOK){view={name:"home"};render();return}
+  const R=lehrerRows();
+  const gl=Object.values(GLAS).map(g=>`<tr><td class="n">${g[0]} × ${g[1]}</td><td class="n">${g[3]} × ${g[4]}</td><td class="n">${g[5]} × ${g[6]}</td></tr>`).join("");
+  app.innerHTML=`<div class="view">
+  ${crumbs([["Startseite","home"],["Lehrerzugang"]])}
+  <section class="block"><div class="eyebrow">Nur für Lehrkräfte</div><h1>Musterlösung Projekt Timo</h1>
+  <p class="lede">Die Lösung ist nur nach PIN sichtbar. Zum Schließen auf „Lehrerzugang beenden“ tippen.</p>
+  <div class="row2"><button class="btn" id="lPdf">Musterlösung als PDF</button><button class="btn sec" id="lOut">Lehrerzugang beenden</button></div><div id="pdfMsg"></div></section>
+  <section class="block"><h2>Futtertüren (7 Positionen)</h2><div class="tscroll"><table class="bm"><thead><tr><th>Pos.</th><th>Raum</th><th>Rohbau B × H</th><th>Wand</th><th>DIN</th><th>Baurichtmaß</th><th>Türblatt</th><th>Zargenfalz</th><th>Bekleidung außen</th><th>Futter außen</th><th>Lichter Durchgang</th><th>Kundenwunsch / Besonderheit</th></tr></thead><tbody>
+  ${R.map(r=>`<tr><td>${r.pos}</td><td>${r.raum}</td><td class="n">${r.rb}</td><td class="n">${r.wd}</td><td>${r.din}</td><td class="n">${r.brm}</td><td class="n">${r.tb}</td><td class="n">${r.zf}</td><td class="n">${r.bk}</td><td class="n">${r.fa}</td><td class="n">${r.ld}</td><td>${r.wish}</td></tr>`).join("")}
+  </tbody></table></div>
+  <p class="help">Alle Türen überfälzt. Höhe ab fertigem Fußboden: Rohbau 2135 → Baurichtmaß 2125, Türblatt 2110. In der Aufmaßtabelle steht bei Pos. 1 „101“, gemeint sind 1010 mm.</p></section>
+  <section class="block"><h2>Pos. 3 Wohnen (EG): Ganzglastürblatt</h2>
+  <p class="help">Rohbau 1510 × 2135, Wand 270, DIN links, Stockrahmen mit festem rechtem Seitenteil in Eigenfertigung. Bestellt wird nur das Ganzglastürblatt mit Beschlag. Jedes Standardmaß gilt als richtig. Glas = Zargenfalzmaß − 7 mm (Breite) bzw. − 11 mm (Höhe). Die Kontrolle empfiehlt satiniertes Glas oder Dekor statt Klarglas.</p>
+  <div class="tscroll"><table class="bm"><thead><tr><th>Baurichtmaß</th><th>Zargenfalz</th><th>Glasmaß</th></tr></thead><tbody>${gl}</tbody></table></div></section>
+  <section class="block card"><h3>Schüler-PDF abgleichen</h3><ol class="help" style="padding-left:18px;display:grid;gap:4px">
+    <li><b>Seite 1, Hinweise:</b> „Bei Bestellung keine offenen Fehler“ heißt, die Endprüfung (Kontrolle 3) war fehlerfrei. Sonst stehen dort die betroffenen Positionen.</li>
+    <li><b>Kontrollen:</b> Die Zahlen Türliste/Positionen/Endprüfung zeigen, wie oft geprüft wurde (viele Prüfungen = viel Probieren).</li>
+    <li><b>Bestelltabelle:</b> 8 Zeilen (7 Futtertüren + Ganzglastür), Maße mit der Tabelle oben vergleichen. Die Maße rechnet der Shop aus dem Rohbaumaß, entscheidend sind also Rohbaumaß, Wanddicke und DIN-Richtung.</li>
+    <li><b>Ausstattung:</b> Pos. 1 mit Lichtausschnitt, Bäder mit WC-Schloss, Küche mit Schallschutz.</li>
+    <li><b>Lieferschein</b> (Seite 2): Packstücke je Position, Glastür auf Glasbock.</li></ol></section>
+  </div>`;
+  bar.hidden=true;
+  document.getElementById("lOut").addEventListener("click",()=>{teacherOK=false;go({name:"home"})});
+  document.getElementById("lPdf").addEventListener("click",lehrerPdf);
+}
+async function lehrerPdf(){
+  if(!window.jspdf){pdfMsg("err","PDF-Baustein nicht geladen.");return}
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",orientation:"landscape"});const W=297,M=12;
+  doc.setFillColor(31,77,63);doc.rect(0,0,W,20,"F");doc.addImage(PDFLOGO,"PNG",M-2,2.5,48.7,15);doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text("Musterlösung Projekt Timo (Lehrkraft)",W-M,12,{align:"right"});doc.setTextColor(29,38,34);
+  doc.autoTable({startY:26,head:[["Pos.","Raum","Rohbau B × H","Wand","DIN","Baurichtmaß","Türblatt","Zargenfalz","Bekl. außen","Futter außen","Licht. Durchgang","Besonderheit"]],
+    body:lehrerRows().map(r=>[r.pos,r.raum,r.rb,r.wd,r.din,r.brm,r.tb,r.zf,r.bk,r.fa,r.ld,r.wish]).concat([["3","Wohnen (EG)","1510 × 2135","270","DIN L","frei wählbar","Ganzglastürblatt ESG","je nach Standardmaß","–","– (Stockrahmen)","–","Glas = Falz - 7 / - 11 mm"]]),
+    styles:{font:"helvetica",fontSize:8,cellPadding:1.6,textColor:[29,38,34],lineColor:[213,219,214],lineWidth:.1},headStyles:{fillColor:[220,235,229],textColor:[29,38,34],fontStyle:"bold"},margin:{left:M,right:M}});
+  let y=doc.lastAutoTable.finalY+6;
+  doc.autoTable({startY:y,head:[["Glas: Baurichtmaß","Zargenfalz","Glasmaß"]],body:Object.values(GLAS).map(g=>[g[0]+" × "+g[1],g[3]+" × "+g[4],g[5]+" × "+g[6]]),tableWidth:120,
+    styles:{font:"helvetica",fontSize:8,cellPadding:1.4,textColor:[29,38,34],lineColor:[213,219,214],lineWidth:.1},headStyles:{fillColor:[220,235,229],textColor:[29,38,34],fontStyle:"bold"},margin:{left:M}});
+  doc.setFontSize(7.5);doc.setTextColor(93,106,100);doc.text("Alle Futtertüren überfälzt. Höhe ab fertigem Fußboden (BRM 2125). Aufmaßtabelle Pos. 1: „101“ = 1010 mm.",M,203);
+  const blob=doc.output("blob"),name="Musterloesung_Tueren_Timo.pdf";
+  const dl=await getDownloads();
+  if(dl){try{await dl.save({filename:name,data:blob});pdfMsg("ok","Gespeichert: "+name)}catch(e){pdfMsg("warn","Nicht gespeichert.")}return}
+  const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);pdfMsg("ok","Gespeichert: "+name);
 }
 function renderService(){
   app.innerHTML=`<div class="view narrow">
@@ -1462,6 +1524,8 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 13:42";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+  const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 window.__tk={S,buildPdf,check,price,norm,go};
 
 /* Eingangstür: Die Seite liegt hinter einer Tür, durch die man eintritt */
@@ -1491,7 +1555,6 @@ if(S.order)view={name:"done"};
 render();
 getDownloads();
 })();
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 13:27";f.appendChild(p)}})();
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").then(r=>{r.update&&r.update()}).catch(()=>{})});
