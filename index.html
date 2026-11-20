@@ -414,6 +414,14 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 @keyframes drive{from{left:-110px}to{left:calc(100% - 100px)}}
 @media (prefers-reduced-motion:reduce){.pvl,.pvl.sw,.sect.anim *,details[open] .falz .dim,.res .msg,#listRes .msg,.cartbtn.bump,.cartbtn.bump .badge,.bigp.pchg{animation:none!important;transition:none!important}
 .msg .tick,.okb circle,.okb path{animation:none;stroke-dashoffset:0}.lane .truck{animation:none}.lane .lt{animation:none}}
+.unit.auto input{background:var(--surface-2);border-style:dashed;color:var(--ink);cursor:default}
+.unit.auto input:focus{outline:none}
+.unit.fill input{animation:fillIn .7s ease}
+@keyframes fillIn{0%{background:var(--accent-soft);transform:scale(.97)}60%{background:var(--accent-soft)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.unit.fill input{animation:none}}
+.mtable .unit input{padding-left:10px;padding-right:32px;font-size:16px;min-width:0;width:100%}
+.mtable .unit span{right:9px;font-size:12px}
+.mtable .rl{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
 </style>
 <script>
 (function(){
@@ -486,6 +494,7 @@ function save(){try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
 const euro=n=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n);
 const num=v=>{const n=parseInt(String(v).replace(/\D/g,""),10);return isNaN(n)?null:n};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+S.doors.forEach(derive);
 function isDone(d){return MKEYS.every(k=>num(d[k])!==null)&&!!d.wd&&!!d.din&&num(d.pos)!==null&&!!String(d.raum).trim()&&!!d.gs}
 const LIST=()=>S.doors.slice().sort((a,b)=>((num(a.pos)??9999)-(num(b.pos)??9999))||(a.id-b.id));
 const byId=id=>S.doors.find(d=>d.id===id);
@@ -791,7 +800,9 @@ function step(n,title,body){return `<section class="block card step"><div class=
 
 function renderDoor(id){
   const d=byId(id);
-  const mi=k=>`<div class="unit"><input type="number" inputmode="numeric" pattern="[0-9]*" id="${k}" data-k="${k}" value="${esc(d[k])}"><span>mm</span></div>`;
+  derive(d);
+  const mi=k=>k.startsWith("rb")?`<div class="unit"><input type="number" inputmode="numeric" pattern="[0-9]*" id="${k}" data-k="${k}" value="${esc(d[k])}"><span>mm</span></div>`
+    :`<div class="unit auto"><input type="text" readonly tabindex="-1" id="${k}" value="${esc(d[k])}" placeholder="–" aria-label="wird berechnet"><span>mm</span></div>`;
   app.innerHTML=`<div class="view">
   ${crumbs([["Startseite","home"],["Ihre Positionen","produkte"],[esc(ttl(d))]])}
   <section class="block buy">
@@ -815,11 +826,12 @@ function renderDoor(id){
     <button class="btn sec" id="delBtn" type="button">Position entfernen</button>`)}
   ${step(1,"Maße",`
     <div class="chain"><b>Rohbaumaß</b>→<b>Baurichtmaß</b>→<b>Bestellmaß Türblatt</b></div>
-    <p class="help">Rohbaumaß aus dem Grundriss bzw. deiner Aufmaßtabelle, alle anderen Maße aus der Maßtabelle Falztüren (DIN 18101). Alle Werte in mm.</p>
+    <p class="help">Trage nur das <b>Rohbaumaß aus dem Plan</b> bzw. deiner Aufmaßtabelle ein (in mm). Baurichtmaß, Türblatt, Zarge und Durchgang füllt der Shop automatisch nach der Maßtabelle Falztüren (DIN 18101) aus.</p>
     <div class="mtable">
       <div></div><div class="ch">Breite</div><div class="ch">Höhe</div>
       ${MROWS.map(r=>`<div class="rl">${r[1]}${r[2]?`<small>${r[2]}</small>`:""}</div>${mi(r[0]+"B")}${mi(r[0]+"H")}`).join("")}
     </div>
+    <p class="hint" id="normHint" hidden>Zu diesem Rohbaumaß gibt es keine genormte Türgröße nach DIN 18101. Prüfe das Maß im Plan.</p>
     <p class="hint" id="unitHint" hidden>Sind das wirklich Millimeter? Breiten liegen bei Innentüren zwischen 600 und 1100 mm.</p>
     <details class="info"><summary>Bild: Falzmaße nach DIN 18101</summary><div class="falz" style="margin-top:8px">${falzSvg()}</div></details>`)}
   ${step(2,"Zarge &amp; Futter",`
@@ -881,6 +893,10 @@ function renderDoor(id){
   updDoor(id);
 }
 const PV={},LP={},SX={};
+/* Rohbaumaß -> nächste Normgröße (Maueröffnungsmaß der Tabelle, Toleranz 15 mm) */
+function nearRow(tab,v){let best=null,bd=1e9;for(const k in tab){const dd=Math.abs(tab[k][0]-v);if(dd<bd){bd=dd;best=+k}}return bd<=15?best:null}
+function derive(d){const rb=num(d.rbB),rh=num(d.rbH);const b=rb!==null?nearRow(DINB,rb):null,h=rh!==null?nearRow(DINH,rh):null;
+  d.brmB=b??"";d.brmH=h??"";["tb","zf","bk","fa","ld"].forEach((k,i)=>{d[k+"B"]=b?DINB[b][i+1]:"";d[k+"H"]=h?DINH[h][i+1]:""})}
 const RM=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
 function countUp(el,from,to,tail){
   if(RM||from===undefined||from===to){el.innerHTML=euro(to)+tail;return}
@@ -923,6 +939,8 @@ function flyToCart(from,html,done){
 function bumpCart(){const c=document.querySelector(".cartbtn");if(!c||RM)return;c.classList.remove("bump");void c.offsetWidth;c.classList.add("bump")}
 function updDoor(id){
   const d=byId(id),pr=price(d),pos=num(d.pos)??"?";
+  derive(d);MKEYS.filter(k=>!k.startsWith("rb")).forEach(k=>{const el=document.getElementById(k);if(el&&el.value!==String(d[k])){el.value=d[k];if(d[k]!==""&&!RM){el.parentNode.classList.remove("fill");void el.offsetWidth;el.parentNode.classList.add("fill")}}});
+  const nh=document.getElementById("normHint");if(nh)nh.hidden=!((num(d.rbB)!==null&&num(d.rbB)>=300&&d.brmB==="")||(num(d.rbH)!==null&&num(d.rbH)>=1000&&d.brmH===""));
   const dt=document.getElementById("dTitle");if(dt)dt.textContent=ttl(d);
   const h=document.getElementById("unitHint");if(h)h.hidden=!["rbB","brmB","tbB"].some(k=>num(d[k])!==null&&num(d[k])<300);
   const pi=document.getElementById("pvImg");if(pi){const st=getComputedStyle(document.documentElement).getPropertyValue("--ink").trim()||"#26302b";
