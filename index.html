@@ -1044,7 +1044,7 @@ function dinSvg(side){
     <rect x="16" y="12" width="78" height="134" class="svgfill svgline" stroke-width="2"/>
     <rect x="${hx-3}" y="28" width="6" height="14" rx="2" class="svgacc"/><rect x="${hx-3}" y="112" width="6" height="14" rx="2" class="svgacc"/>
     <rect x="${gx-3}" y="76" width="6" height="12" rx="2" class="svgmut"/><rect x="${side==="L"?gx-14:gx}" y="78" width="14" height="4" rx="2" class="svgmut"/>
-    <path d="M ${side==="L"?94:16} 14 L ${side==="L"?16:94} 79 L ${side==="L"?94:16} 144" fill="none" class="svgline" stroke-width="1" stroke-dasharray="3 3"/>
+    <path d="M ${side==="L"?16:94} 14 L ${side==="L"?94:16} 79 L ${side==="L"?16:94} 144" fill="none" class="svgline" stroke-width="1" stroke-dasharray="3 3"/>
   </svg>`;
 }
 function step(n,title,body){return `<section class="block card step"><div class="head"><span class="n">${n+1}</span><h3>${title}</h3></div>${body}</section>`}
