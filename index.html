@@ -486,6 +486,12 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 .card.teams ol{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
 footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
 .updbar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:95;background:#1f4d3f;color:#fff;border:0;border-radius:999px;padding:10px 16px;font:600 14px var(--f-body);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
+.mskz{display:grid;gap:8px;margin-top:10px}
+.mskz .falz svg{min-width:0}
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.terms div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;display:grid;gap:2px}
+.terms span{color:var(--muted)}
+@media (max-width:520px){.terms{grid-template-columns:1fr}}
 </style>
 <script>
 (function(){
@@ -495,6 +501,11 @@ const STORE="tuerkonfig-timo-v3";
 const SOLL=JSON.parse(atob("eyIxIjpbMTAxMCwyMTM1LDEwMDAsMjEyNSw5ODUsMjExMCwxNDUsIlIiLCJMQSJdLCIyIjpbNzYwLDIxMzUsNzUwLDIxMjUsNzM1LDIxMTAsMjcwLCJMIiwiQkFEIl0sIjQiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIlIiLCJTUyJdLCI1IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMjcwLCJMIiwiIl0sIjYiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIlIiLCJCQUQiXSwiNyI6Wzg4NSwyMTM1LDg3NSwyMTI1LDg2MCwyMTEwLDE0NSwiUiIsIiJdLCI4IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMTQ1LCJSIiwiIl19"));
 /* Maßtabelle Falztüren DIN 18101: Baurichtmaß → [Mauermaß, Türblatt, Zargenfalz, Bekleidung außen, Futter außen, lichter Durchgang] */
 const DINB={500:[510,485,466,586,490,444],625:[635,610,591,711,615,569],750:[760,735,716,836,740,694],875:[885,860,841,961,865,819],1000:[1010,985,966,1086,990,944],1125:[1135,1110,1091,1211,1115,1069],1250:[1260,1235,1216,1336,1240,1194],1375:[1385,1360,1341,1461,1365,1319]};
+/* Maßtabelle Türelement stumpf einschlagend (DIN 18100/18101, Bodenluft 7 mm, Bekleidung 63 mm): [Rohbaumaß, Türblatt, Zargenfalz, Bekleidungsaußen, Futterbrettaußen, licht] */
+const STB={625:[635,584,591,716,615,569],750:[760,709,716,841,740,694],875:[885,834,841,966,865,819],1000:[1010,959,966,1091,990,944],1125:[1135,1084,1091,1216,1115,1069],1250:[1260,1209,1216,1341,1240,1194]};
+const STH={2000:[2005,1972,1983,2043,1994,1971],2125:[2130,2097,2108,2171,2119,2096]};
+const TAB=d=>d.anschlag==="stumpf"?[STB,STH]:[DINB,DINH];
+const TABN=d=>d.anschlag==="stumpf"?"Maßtabelle Stumpftüren":"Maßtabelle Falztüren";
 const DINH={1625:[1630,1610,1608,1667,1619,1596],1750:[1755,1735,1733,1792,1744,1721],1875:[1880,1860,1858,1917,1869,1846],2000:[2005,1985,1983,2042,1994,1971],2125:[2130,2110,2108,2167,2119,2096],2250:[2255,2235,2233,2292,2244,2221],2375:[2380,2360,2358,2417,2369,2346],2500:[2505,2485,2483,2542,2494,2471]};
 /* Maßzeilen wie in der Bestellliste; idx = Spalte in der DIN-Tabelle */
 const MROWS=[["rb","Rohbaumaß","Maueröffnung / Plan",null],["brm","Baurichtmaß","Nennmaß DIN 18100",null],["tb","Bestellmaß Türblatt","Außenmaß über Falz",1],["zf","Zargenfalzmaß","",2],["bk","Bekleidungsaußenmaß","",3],["fa","Futteraußenmaß","",4],["ld","Lichtes Durchgangsmaß","",5]];
@@ -518,9 +529,11 @@ const OPT={
   bandzahl:[["2","2 Bänder","Standard",0],["3","3 Bänder","für schwere oder hohe Türen",14]],
   drk:[["rund","Edelstahl, Rundrosette","Drücker L-Form, matt gebürstet",39],["schild","Edelstahl, Kurzschild","klassisch",49],["schw","Schwarz matt, Rundrosette","Drücker eckig",69]],
   schliess:[["lappen","Lappenschließblech","Standard für Holzzargen",0],["winkel","Winkelschließblech, verstellbar","Anpressdruck nachstellbar",9],["dicht","Schließblech mit Dichtungsausgleich","für Zargen mit Dichtung/Schallschutz",14]],
+  kante:[["rund","Kante gerundet","Standard bei Falztüren, stoßunempfindlicher",0],["eckig","Kante eckig","geradlinige Optik, bei stumpfen Türen immer eckig",0]],
+  gkasten:[["studio","Schlosskasten Studio","schmaler Kasten, Schlosskastenbohrung Studio",0],["office","Schlosskasten Office","rechteckiger Kasten, Schlosskastenbohrung Office",25]],
   art:[["futter","Futtertür komplett","Türblatt, Zarge und Beschlag",0],["glas","Ganzglastürblatt","nur Glastürblatt + Beschlag, für eigene Zarge/Stockrahmen",0]],
   gart:[["klar8","ESG 8 mm klar","durchsichtig",0],["sat8","ESG 8 mm satiniert","blickdicht, lichtdurchlässig",60],["dekor8","ESG 8 mm satiniert mit Klarglasstreifen","Dekor, blickdicht",110],["klar10","ESG 10 mm klar","schwerer und stabiler",90]],
-  gband:[["studio2","Glastürbänder, 2 Stück","Klemmbänder für Holzzargen, Standard",0],["studio3","Glastürbänder, 3 Stück","für hohe oder schwere Glastüren",45],["flach","Flächenbündige Glastürbänder, 2 Stück","in die Zarge eingelassen, edle Optik",85]],
+  gband:[["studio2","Studio-Bänder, 2 Stück","Klemmbänder für Holzzargen, Bandbohrung Studio",0],["studio3","Studio-Bänder, 3 Stück","für hohe oder schwere Glastüren",45],["office","Office-Bänder 3-teilig, 2 Stück","eckige Bänder, Bandbohrung Office",35],["flach","Flächenbündige Glastürbänder, 2 Stück","in die Zarge eingelassen, edle Optik",85]],
   gbandf:[["edel","Edelstahl matt","passt zu Edelstahldrückern",0],["alu","Aluminium silber","preiswert",-10],["schw","Schwarz matt","passt zu schwarzen Drückern",18]],
   gdrk:[["rund","Glastürgarnitur Edelstahl, rund","Drücker beidseitig, Schlosskasten geklemmt",89],["eckig","Glastürgarnitur Edelstahl, eckig","Drücker beidseitig, Schlosskasten geklemmt",109],["schw","Glastürgarnitur schwarz matt","Drücker beidseitig, Schlosskasten geklemmt",129],["stange","Griffstangen beidseitig","mit Rollfalle, ohne Schloss",119]],
   gschloss:[["falle","Nur Falle","ohne Schließung",0],["bb","Buntbart (BB)","einfacher Schlüssel",25],["pz","Profilzylinder (PZ)","abschließbar, inkl. Zylinder",59],["wc","WC-Verriegelung","mit Olive und Notöffnung",45]],
@@ -535,11 +548,11 @@ const lab=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[1]:"–"};
 const delta=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[3]:0};
 const farbe=d=>(FARBEN[d.ofl]||[]).find(f=>f[0]===d.farbe)||FARBEN[d.ofl][0];
 
-function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"lappen",anschlag:"falz",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb",art:"futter",gsize:"",gart:"sat8",gband:"studio2",gbandf:"edel",gdrk:"rund",gschloss:"falle"})}
+function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"lappen",anschlag:"falz",kante:"rund",gkasten:"studio",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb",art:"futter",gsize:"",gart:"sat8",gband:"studio2",gbandf:"edel",gdrk:"rund",gschloss:"falle"})}
 /* Abhängigkeiten zwischen Optionen, wie ein echter Konfigurator sie erzwingt */
 function norm(d){
   if(d.ss!=="none"){d.bauart="sperr";if(d.mittel!=="sand"&&d.mittel!=="voll")d.mittel="sand";d.boden="absenk";d.bandzahl="3";if(d.bandtyp==="e2")d.bandtyp="e3"}
-  if(d.anschlag==="stumpf")d.bandtyp="verd";else if(d.bandtyp==="verd")d.bandtyp="e2";
+  if(d.anschlag==="stumpf"){d.bandtyp="verd";d.kante="eckig"}else if(d.bandtyp==="verd")d.bandtyp="e2";
   if(!(FARBEN[d.ofl]||[]).some(f=>f[0]===d.farbe))d.farbe=FARBEN[d.ofl][0][0];
   return d;
 }
@@ -554,6 +567,7 @@ function disabled(key,val,d){
   if(key==="ss"&&val!=="none"&&d.bauart==="rahmen")return true;
   if(key==="gschloss"&&val!=="falle"&&d.gdrk==="stange")return true;
   if(key==="bandtyp"&&d.anschlag==="stumpf"&&val!=="verd")return true;
+  if(key==="kante"&&d.anschlag==="stumpf"&&val==="rund")return true;
   if(key==="bandtyp"&&d.anschlag==="falz"&&val==="verd")return true;
   return false;
 }
@@ -651,19 +665,20 @@ function check(d,key){
   if(g("rbB")!==s[0])E.push("Rohbaubreite passt nicht zum Grundriss. Welche Zahl steht über der Maßlinie?");
   if(g("rbH")!==s[1])E.push("Rohbauhöhe passt nicht zum Grundriss. Welche Zahl steht unter der Maßlinie?");
   if(g("brmB")!==s[2])E.push("Baurichtmaß Breite falsch. Welches Baurichtmaß gehört laut Maßtabelle zu dieser Rohbauöffnung?");
-  if(g("brmH")!==s[3])E.push(g("brmH")===2000?"Baurichtmaß Höhe: Die Standardhöhe ist hier zu niedrig. Die Rohbauhöhe ist ab fertigem Fußboden gemessen.":"Baurichtmaß Höhe falsch. Maßtabelle Falztüren prüfen.");
+  if(g("brmH")!==s[3])E.push(g("brmH")===2000?"Baurichtmaß Höhe: Die Standardhöhe ist hier zu niedrig. Die Rohbauhöhe ist ab fertigem Fußboden gemessen.":"Baurichtmaß Höhe falsch. "+TABN(d)+" prüfen.");
   /* Folgemaße: Fehler nur melden, wenn sie auch nicht zur (evtl. falschen) eigenen Baurichtmaß-Zeile passen */
-  const rowB=DINB[s[2]],rowH=DINH[s[3]],ownB=DINB[g("brmB")],ownH=DINH[g("brmH")];
+  const [TB,TH]=TAB(d),rowB=TB[s[2]]||DINB[s[2]],rowH=TH[s[3]]||DINH[s[3]],ownB=TB[g("brmB")],ownH=TH[g("brmH")];
   MROWS.filter(r=>r[3]!==null).forEach(r=>{
     [["B","Breite",rowB,ownB],["H","Höhe",rowH,ownH]].forEach(([sx,nm,soll,own])=>{
       const v=g(r[0]+sx);if(v===soll[r[3]])return;
       if(own&&own!==soll&&v===own[r[3]])return;
       if(r[0]==="tb"&&sx==="B"&&(v===g("rbB")||v===g("brmB")))E.push("Bestellmaß Türblatt (Breite): Das Türblatt ist nicht so breit wie die Öffnung. In der Maßtabelle die Spalte Nennmaß/Bestellmaß ablesen.");
-      else E.push(r[1]+" ("+nm+") passt nicht. In der Maßtabelle Falztüren die Zeile zum Baurichtmaß und die richtige Spalte suchen.");
+      else E.push(r[1]+" ("+nm+") passt nicht. In der "+TABN(d)+" die Zeile zum Baurichtmaß und die richtige Spalte suchen.");
     })});
   if(num(d.wd)!==s[6])E.push("Wanddicke falsch. Gefragt ist die fertige Wand: Rohwand + Putz. Wähle die passende Herstellerwanddicke.");
   if(d.din!==s[7])E.push("Öffnungsrichtung prüfen: Türsymbol im Grundriss, Blick auf die Bandseite (DIN 107).");
-  if(d.anschlag!=="falz")E.push("Anschlagart: Laut Türliste sind Timos Futtertüren überfälzt.");
+  if(d.anschlag!=="falz")E.push("Anschlagart: Laut Türliste sind Timos Futtertüren überfälzt. Achtung: Stumpfe Türen haben andere Türblattmaße (Maßtabelle Stumpftüren).");
+  if(d.anschlag==="falz"&&d.kante==="eckig")W.push("Überfälzte Türen haben üblicherweise gerundete Kanten. Eckig ist möglich, aber stoßempfindlicher.");
   if(s[8]==="LA"&&d.la==="none")E.push("Timo wünscht in dieser Tür ein Fenster auf Augenhöhe (WhatsApp-Nachricht).");
   if(s[8]==="SS"&&d.ss==="none")E.push("Timo arbeitet hier im Homeoffice und wünscht eine „schalldichte“ Tür.");
   if(s[8]==="SS"&&d.la!=="none")W.push("Lichtausschnitt in einer Schallschutztür schwächt den Schallschutz. Lieber weglassen.");
@@ -869,16 +884,17 @@ function renderLehrer(){
   <section class="block"><h2>Futtertüren (7 Positionen)</h2><div class="tscroll"><table class="bm"><thead><tr><th>Pos.</th><th>Raum</th><th>Rohbau B × H</th><th>Wand</th><th>DIN</th><th>Baurichtmaß</th><th>Türblatt</th><th>Zargenfalz</th><th>Bekleidung außen</th><th>Futter außen</th><th>Lichter Durchgang</th><th>Kundenwunsch / Besonderheit</th></tr></thead><tbody>
   ${R.map(r=>`<tr><td>${r.pos}</td><td>${r.raum}</td><td class="n">${r.rb}</td><td class="n">${r.wd}</td><td>${r.din}</td><td class="n">${r.brm}</td><td class="n">${r.tb}</td><td class="n">${r.zf}</td><td class="n">${r.bk}</td><td class="n">${r.fa}</td><td class="n">${r.ld}</td><td>${r.wish}</td></tr>`).join("")}
   </tbody></table></div>
-  <p class="help">Alle Türen überfälzt. Höhe ab fertigem Fußboden: Rohbau 2135 → Baurichtmaß 2125, Türblatt 2110. In der Aufmaßtabelle steht bei Pos. 1 „101“, gemeint sind 1010 mm.</p></section>
+  <p class="help">Alle Türen überfälzt, Kante gerundet (eckig gibt nur einen Hinweis). Wählt jemand „stumpf“, rechnet der Shop nach der Maßtabelle Stumpftüren (z. B. Türblatt 834 × 2097 statt 860 × 2110) und Kontrolle 2 meldet die falsche Anschlagart. Höhe ab fertigem Fußboden: Rohbau 2135 → Baurichtmaß 2125, Türblatt 2110. In der Aufmaßtabelle steht bei Pos. 1 „101“, gemeint sind 1010 mm.</p></section>
   <section class="block"><h2>Pos. 3 Wohnen (EG): Ganzglastürblatt</h2>
-  <p class="help">Rohbau 1510 × 2135, Wand 270, DIN links, Stockrahmen mit festem rechtem Seitenteil in Eigenfertigung. Bestellt wird nur das Ganzglastürblatt mit Beschlag. Jedes Standardmaß gilt als richtig. Glas = Zargenfalzmaß − 7 mm (Breite) bzw. − 11 mm (Höhe). Die Kontrolle empfiehlt satiniertes Glas oder Dekor statt Klarglas.</p>
+  <p class="help">Rohbau 1510 × 2135, Wand 270, DIN links, Stockrahmen mit festem rechtem Seitenteil in Eigenfertigung. Bestellt wird nur das Ganzglastürblatt mit Beschlag. Jedes Standardmaß gilt als richtig. Glas = Zargenfalzmaß − 7 mm (Breite, je 3,5) bzw. − 11 mm (Höhe, 4 oben + 7 unten). Hinweis bei gemischter Serie Studio/Office (Bänder/Schlosskasten). Die Kontrolle empfiehlt satiniertes Glas oder Dekor statt Klarglas.</p>
   <div class="tscroll"><table class="bm"><thead><tr><th>Baurichtmaß</th><th>Zargenfalz</th><th>Glasmaß</th></tr></thead><tbody>${gl}</tbody></table></div></section>
   <section class="block card"><h3>Schüler-PDF abgleichen</h3><ol class="help" style="padding-left:18px;display:grid;gap:4px">
     <li><b>Seite 1, Hinweise:</b> „Bei Bestellung keine offenen Fehler“ heißt, die Endprüfung (Kontrolle 3) war fehlerfrei. Sonst stehen dort die betroffenen Positionen.</li>
     <li><b>Kontrollen:</b> Die Zahlen Türliste/Positionen/Endprüfung zeigen, wie oft geprüft wurde (viele Prüfungen = viel Probieren).</li>
     <li><b>Bestelltabelle:</b> 8 Zeilen (7 Futtertüren + Ganzglastür), Maße mit der Tabelle oben vergleichen. Die Maße rechnet der Shop aus dem Rohbaumaß, entscheidend sind also Rohbaumaß, Wanddicke und DIN-Richtung.</li>
     <li><b>Ausstattung:</b> Pos. 1 mit Lichtausschnitt, Bäder mit WC-Schloss, Küche mit Schallschutz.</li>
-    <li><b>Lieferschein</b> (Seite 2): Packstücke je Position, Glastür auf Glasbock.</li></ol></section>
+    <li><b>Aufmaßblatt</b> (Seite 2): Händlerformat mit Maßen Höhe × Breite, danach das Aufmaß Glasdrehtür mit Skizze.</li>
+    <li><b>Lieferschein:</b> Packstücke je Position, Glastür auf Glasbock.</li></ol></section>
   </div>`;
   bar.hidden=true;
   document.getElementById("lOut").addEventListener("click",()=>{teacherOK=false;go({name:"home"})});
@@ -1032,7 +1048,7 @@ function glasSvg(d,o){
   ys.forEach(y=>{s+=d.gband==="flach"?`<rect x="${hx-2}" y="${y-6}" width="8" height="12" rx="1" fill="${m[1]}" stroke="${stroke}" stroke-width=".5"/>`:`<rect x="${hx-3}" y="${y-8}" width="12" height="16" rx="2" fill="${m[1]}" stroke="${stroke}" stroke-width=".6"/><circle cx="${hx+5}" cy="${y-3}" r="1" fill="${m[2]}"/><circle cx="${hx+5}" cy="${y+3}" r="1" fill="${m[2]}"/>`});
   const dc=d.gdrk==="schw"?METAL.schw[1]:"#a9b0b4";
   if(d.gdrk==="stange")s+=`<rect x="${gx-2}" y="62" width="4" height="70" rx="2" fill="${dc}" stroke="${stroke}" stroke-width=".5"/>`;
-  else{s+=`<rect x="${hingeL?gx-7:gx-5}" y="90" width="12" height="22" rx="2" fill="${dc}" stroke="${stroke}" stroke-width=".5"/>`;
+  else{s+=`<rect x="${hingeL?gx-7:gx-5}" y="90" width="12" height="22" rx="${d.gkasten==="office"?0:3}" fill="${dc}" stroke="${stroke}" stroke-width=".5"/>`;
     s+=`<rect x="${hingeL?gx-16:gx}" y="94" width="16" height="3.2" rx="1.6" fill="${d.gdrk==="schw"?"#1d1f20":"#c3c9cc"}" stroke="${stroke}" stroke-width=".4"/>`;
     if(d.gschloss!=="falle")s+=`<circle cx="${gx-1}" cy="105" r="1.6" fill="${stroke}"/>`;}
   return s+"</svg>";
@@ -1045,24 +1061,29 @@ function glasPrice(d){const L=[],g=GLAS[d.gsize];
   L.push([lab("gband",d.gband),delta("gband",d.gband)+69]);
   if(delta("gbandf",d.gbandf))L.push(["Bänder "+lab("gbandf",d.gbandf),delta("gbandf",d.gbandf)]);
   L.push([lab("gdrk",d.gdrk),delta("gdrk",d.gdrk)]);
+  if(d.gdrk!=="stange"&&delta("gkasten",d.gkasten))L.push([lab("gkasten",d.gkasten),delta("gkasten",d.gkasten)]);
   if(delta("gschloss",d.gschloss))L.push([lab("gschloss",d.gschloss),delta("gschloss",d.gschloss)]);
   L.push(["Gegenkasten/Schließblech für Holzrahmen",19]);
   return{lines:L,total:L.reduce((a,b)=>a+b[1],0)}}
 function glasRow(d){const g=GLAS[d.gsize];const mm=(a,b)=>g?a+" × "+b:"–";
   return [String(num(d.pos)??"?"),String(d.raum).trim()+(d.gs?" ("+d.gs+")":""),"Glas "+mm(g&&g[5],g&&g[6]),"–",mm(g&&g[3],g&&g[4]),"–","–","–",lab("gart",d.gart),d.din?"DIN "+d.din:"–",
-    lab("gdrk",d.gdrk)+"; "+lab("gschloss",d.gschloss)+"; "+lab("gband",d.gband)+", "+lab("gbandf",d.gbandf),"Ganzglastürblatt ESG, stumpf","– (Stockrahmen Eigenbau)","–","–",euro(glasPrice(d).total)]}
+    lab("gdrk",d.gdrk)+(d.gdrk!=="stange"?", "+lab("gkasten",d.gkasten):"")+"; "+lab("gschloss",d.gschloss)+"; "+lab("gband",d.gband)+", "+lab("gbandf",d.gbandf),"Ganzglastürblatt ESG, stumpf","– (Stockrahmen Eigenbau)","–","–",euro(glasPrice(d).total)]}
 function glasCheck(d){const E=[],W=[];
   if(d.din&&d.din!=="L")E.push("Öffnungsrichtung prüfen: Türsymbol im Grundriss, Blick auf die Bandseite (DIN 107).");
   if(d.gsize&&!GLAS[d.gsize])E.push("Wähle eines der Standardmaße für Glastürblätter.");
   if(d.gart&&d.gart.startsWith("klar"))W.push("Klarglas ist kaum zu sehen. Satiniertes Glas oder ein Dekor verhindert, dass jemand dagegen läuft.");
   if(d.gdrk==="stange"&&d.gschloss!=="falle")W.push("Griffstange und Schloss passen nicht zusammen.");
+  if(d.gdrk!=="stange"&&((d.gband==="office")!==(d.gkasten==="office")))W.push("Bänder und Schlosskasten sind aus verschiedenen Serien (Studio/Office). Optisch passt eine Serie besser zusammen.");
+  if(d.gschloss==="wc")W.push("Ein WC-Schloss im Wohnzimmer? Prüfe Timos Wunsch.");
   return{E,W}}
 function glasSteps(d){
   const sizes=Object.keys(GLAS).map(k=>{const g=GLAS[k];return `<label class="opt gsz"><input type="radio" name="gsize" value="${k}" ${d.gsize===k?"checked":""}><span class="ol">BRM ${g[0]} × ${g[1]}</span><span class="od">Rohbau ${g[2]} breit · Zargenfalz ${g[3]} × ${g[4]}<br><b>Glas ${g[5]} × ${g[6]} mm</b></span><span class="op">${euro(g[7])}</span></label>`}).join("");
   return `${step(1,"Glasmaß (Standardmaß)",`
     <p class="help">Ganzglastüren schlagen stumpf an. Maßgebend ist das <b>Zargenfalzmaß</b> deines Stockrahmens. Das Glas ist rundum kleiner: Glasbreite = Falzmaß − 7 mm, Glashöhe = Falzmaß − 11 mm (7 mm Luft unten). Wähle ein Standardmaß, Sondermaße sind erheblich teurer.</p>
     <div class="opts gsizes">${sizes}</div>
-    <p class="hint">ESG kann nach dem Härten nicht mehr gekürzt oder gebohrt werden: erst exakt messen, dann bestellen!</p>`)}
+    <p class="hint">ESG kann nach dem Härten nicht mehr gekürzt oder gebohrt werden: erst exakt messen, dann bestellen!</p>
+    <div class="mskz"><div class="eyebrow">Aufmaßskizze Glasdrehtür (Maße in mm)</div><div class="falz">${glasMassSvg(d)}</div>
+    <p class="help">So rechnet der Glaslieferant: Breite −3,5 mm links und −3,5 mm rechts, Höhe −4 mm oben und −7 mm unten. Die Bänder liegen genormt 241 mm unter der Oberkante Zargenfalz und 1435 mm auseinander, die Drückermitte liegt bei 908 mm. Die Bandbohrungen in deinem Stockrahmen müssen genau dazu passen.</p></div>`)}
   ${step(2,"Öffnungsrichtung",`
     <p class="help">DIN-Richtung nach DIN 107: Blick auf die Bandseite (die Tür geht auf dich zu).</p>
     <div class="din">
@@ -1075,18 +1096,24 @@ function glasSteps(d){
     <div class="eyebrow">Bänder</div><div class="opts">${radios("gband",d)}</div>
     <div class="eyebrow sub-eyebrow">Oberfläche Bänder</div><div class="opts">${radios("gbandf",d)}</div>
     <div class="eyebrow sub-eyebrow">Drückergarnitur</div><div class="opts">${radios("gdrk",d)}</div>
+    ${d.gdrk!=="stange"?`<div class="eyebrow sub-eyebrow">Schlosskasten (Schlosskastenbohrung)</div><div class="opts">${radios("gkasten",d)}</div>`:""}
     <div class="eyebrow sub-eyebrow">Schloss</div><div class="opts">${radios("gschloss",d)}</div>`)}`;
 }
 function gHingeIco(kind,col){const m=METAL[col]||METAL.edel;
   if(kind==="flach")return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="4" y="10" width="20" height="36" fill="#d8b98c" stroke="#6b5a45"/><rect x="26" y="8" width="26" height="40" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="18" y="20" width="16" height="16" rx="1.5" fill="${m[1]}" stroke="${m[2]}"/></svg>`;
-  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="4" y="10" width="18" height="36" fill="#d8b98c" stroke="#6b5a45"/><rect x="28" y="8" width="24" height="40" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="16" y="${kind==="studio3"?14:18}" width="8" height="${kind==="studio3"?28:20}" rx="2" fill="${m[1]}" stroke="${m[2]}"/><rect x="24" y="16" width="16" height="24" rx="2.5" fill="${m[1]}" stroke="${m[2]}"/><circle cx="32" cy="22" r="1.6" fill="${m[2]}"/><circle cx="32" cy="34" r="1.6" fill="${m[2]}"/></svg>`}
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="4" y="10" width="18" height="36" fill="#d8b98c" stroke="#6b5a45"/><rect x="28" y="8" width="24" height="40" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="16" y="${kind==="studio3"?14:18}" width="8" height="${kind==="studio3"?28:20}" rx="${kind==="office"?0:2}" fill="${m[1]}" stroke="${m[2]}"/><rect x="24" y="16" width="16" height="24" rx="${kind==="office"?0:2.5}" fill="${m[1]}" stroke="${m[2]}"/><circle cx="32" cy="22" r="1.6" fill="${m[2]}"/><circle cx="32" cy="34" r="1.6" fill="${m[2]}"/></svg>`}
+function kastenIco(k,d){const m=d.gdrk==="schw"?METAL.schw:METAL.edel;
+  return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="8" y="4" width="36" height="48" fill="#cfe7ee" stroke="#7fa3ad"/>${k==="office"?`<rect x="22" y="14" width="22" height="30" fill="${m[1]}" stroke="${m[2]}"/>`:`<rect x="26" y="16" width="16" height="26" rx="4" fill="${m[1]}" stroke="${m[2]}"/>`}<circle cx="33" cy="24" r="3.4" fill="${m[0]}" stroke="${m[2]}"/><circle cx="33" cy="35" r="1.6" fill="${m[2]}"/></svg>`}
+function kanteIco(k){return `<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M6 16H${k==="rund"?40:48}${k==="rund"?"a8 8 0 0 1 8 8":""}V40H6z" fill="#e7d6b8" stroke="#6b5a45" stroke-width="1.4"/><path d="M6 22h42M6 34h42" stroke="#c9a978" stroke-width=".8"/></svg>`}
 function gDrkIco(k){const blk=k==="schw",m=blk?METAL.schw:METAL.edel;
   if(k==="stange")return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="4" width="34" height="48" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="26" y="8" width="5" height="40" rx="2.5" fill="${m[1]}" stroke="${m[2]}"/><rect x="20" y="12" width="8" height="3" fill="${m[2]}"/><rect x="20" y="41" width="8" height="3" fill="${m[2]}"/></svg>`;
   return `<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="4" width="34" height="48" fill="#cfe7ee" stroke="#7fa3ad"/><rect x="${k==="eckig"?20:21}" y="18" width="14" height="22" rx="${k==="eckig"?1:5}" fill="${m[1]}" stroke="${m[2]}"/><path d="M27 23h${k==="eckig"?22:20}${k==="eckig"?"v5h-22z":"a2.5 2.5 0 0 1 0 5H27z"}" fill="${m[0]}" stroke="${m[2]}" stroke-width=".8"/><circle cx="27" cy="34" r="1.6" fill="${m[2]}"/></svg>`}
 Object.assign(OPTICO,{
   art:{futter:()=>`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="4" width="32" height="48" fill="#e7d6b8" stroke="#6b5a45" stroke-width="1.4"/><rect x="17" y="8" width="22" height="44" fill="#f3f3ef" stroke="#6b5a45"/><rect x="31" y="29" width="7" height="2" fill="#8c9599"/></svg>`,
        glas:()=>`<svg viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="4" width="32" height="48" fill="#d8b98c" stroke="#6b5a45" stroke-width="1.4"/><rect x="17" y="8" width="22" height="44" fill="#cfe7ee" stroke="#7fa3ad"/><path d="M20 14l8 14M23 12l10 18" stroke="#fff" stroke-width="1.6"/><rect x="31" y="27" width="5" height="9" rx="1" fill="#a9b0b4"/></svg>`},
-  gband:{studio2:d=>gHingeIco("studio2",d.gbandf),studio3:d=>gHingeIco("studio3",d.gbandf),flach:d=>gHingeIco("flach",d.gbandf)},
+  gband:{studio2:d=>gHingeIco("studio2",d.gbandf),studio3:d=>gHingeIco("studio3",d.gbandf),office:d=>gHingeIco("office",d.gbandf),flach:d=>gHingeIco("flach",d.gbandf)},
+  gkasten:{studio:d=>kastenIco("studio",d),office:d=>kastenIco("office",d)},
+  kante:{rund:()=>kanteIco("rund"),eckig:()=>kanteIco("eckig")},
   gbandf:{edel:()=>dotIco("edel"),alu:()=>dotIco("vern"),schw:()=>dotIco("schw")},
   gdrk:{rund:()=>gDrkIco("rund"),eckig:()=>gDrkIco("eckig"),schw:()=>gDrkIco("schw"),stange:()=>gDrkIco("stange")},
   gschloss:{falle:()=>lockIco("none"),bb:()=>lockIco("bb"),pz:()=>lockIco("pz"),wc:()=>lockIco("wc")},
@@ -1144,25 +1171,30 @@ function renderDoor(id){
     <button class="btn sec" id="delBtn" type="button">Position entfernen</button>`)}
   ${d.art==="glas"?glasSteps(d):`  ${step(1,"Maße",`
     <div class="chain"><b>Rohbaumaß</b>→<b>Baurichtmaß</b>→<b>Bestellmaß Türblatt</b></div>
-    <p class="help">Trage nur das <b>Rohbaumaß aus dem Plan</b> bzw. deiner Aufmaßtabelle ein (in mm). Baurichtmaß, Türblatt, Zarge und Durchgang füllt der Shop automatisch nach der Maßtabelle Falztüren (DIN 18101) aus.</p>
+    <p class="help">Trage nur das <b>Rohbaumaß aus dem Plan</b> bzw. deiner Aufmaßtabelle ein (in mm). Baurichtmaß, Türblatt, Zarge und Durchgang füllt der Shop automatisch nach der <b>${TABN(d)}</b> (DIN 18101) aus. Welche Tabelle gilt, hängt vom Anschlag ab (Schritt 4).</p>
     <div class="mtable">
       <div></div><div class="ch">Breite</div><div class="ch">Höhe</div>
       ${MROWS.map(r=>`<div class="rl">${r[1]}${r[2]?`<small>${r[2]}</small>`:""}</div>${mi(r[0]+"B")}${mi(r[0]+"H")}`).join("")}
     </div>
     <p class="hint" id="normHint" hidden>Zu diesem Rohbaumaß gibt es keine genormte Türgröße nach DIN 18101. Prüfe das Maß im Plan.</p>
     <p class="hint" id="unitHint" hidden>Sind das wirklich Millimeter? Breiten liegen bei Innentüren zwischen 600 und 1100 mm.</p>
-    <details class="info"><summary>Bild: Falzmaße nach DIN 18101</summary><div class="falz" style="margin-top:8px">${falzSvg()}</div></details>`)}
+    <div class="mskz"><div class="eyebrow">Maßskizze deiner Tür · Breiten (Horizontalschnitt)</div><div class="falz" id="mSkz">${massSvg(d)}</div>
+    <details class="info"><summary>Maßskizze Höhen (ab fertigem Fußboden)</summary><div class="falz" id="hSkz" style="margin-top:8px">${hoeheSvg(d)}</div><p class="help">Alle Höhen werden ab <b>OKFF</b> (Oberkante fertiger Fußboden) gemessen. Unter dem Türblatt bleiben 7 mm Bodenluft.</p></details>
+    <details class="info"><summary>Maßbegriffe mit Buchstaben (zum Lernen)</summary><div class="falz" style="margin-top:8px">${falzSvg()}</div></details></div>`)}
   ${step(2,"Zarge &amp; Futter",`
     <label class="f">Fertige Wanddicke (Zargenmaulweite)<select id="wd" data-k="wd"><option value="">bitte wählen</option>${WAENDE.map(w=>`<option value="${w}" ${d.wd===w?"selected":""}>${w} mm</option>`).join("")}</select></label>
     <p class="help">Umfassungszarge aus Futter und Bekleidung. Der Hersteller liefert Zargen nur für diese Wanddicken.</p>
+    <details class="info"><summary>Gut zu wissen: Bandtaschen und Ständerwände</summary><p class="help" style="margin-top:6px">Das Futteraußenmaß inklusive Bandtaschen braucht eine Maueröffnung von <b>Baurichtmaß + 10 mm</b>. Die Zargen sind für Wände mit Fuge gebaut. Bei Wänden ohne Fuge (z. B. Ständerwände) muss bauseits Platz für die überstehenden Bandtaschen geschaffen werden. Ab 330 mm Wanddicke werden zwei Futterbretter kombiniert.</p></details>
     <div class="eyebrow">Futtermaterial</div><div class="opts">${radios("futter",d)}</div>`)}
   ${step(3,"Anschlag &amp; Öffnungsrichtung",`
     <div class="opts">${radios("anschlag",d)}</div>
+    <div class="eyebrow sub-eyebrow">Kantenform Türblatt</div><div class="opts">${radios("kante",d)}</div>
     <p class="help">DIN-Richtung nach DIN 107: Blick auf die Bandseite (die Tür geht auf dich zu).</p>
     <div class="din">
       <label class="opt"><input type="radio" name="din" value="L" ${d.din==="L"?"checked":""}>${dinSvg("L")}<span class="ol">DIN links</span><span class="od">Bänder links</span></label>
       <label class="opt"><input type="radio" name="din" value="R" ${d.din==="R"?"checked":""}>${dinSvg("R")}<span class="ol">DIN rechts</span><span class="od">Bänder rechts</span></label>
-    </div>`)}
+    </div>
+    <div class="terms"><div><b>Öffnungsfläche</b><span>= Bandseite = Überschlagseite</span></div><div><b>Schließfläche</b><span>= Bandgegenseite = Falzseite</span></div></div>`)}
   ${step(4,"Türblattkonstruktion",`
     <div class="eyebrow">Bauart</div><div class="opts">${radios("bauart",d)}</div>
     ${d.bauart==="sperr"?`<div class="eyebrow sub-eyebrow">Mittellage (Einlage)</div><div class="opts">${radios("mittel",d)}</div>
@@ -1214,8 +1246,8 @@ function renderDoor(id){
 const PV={},LP={},SX={};
 /* Rohbaumaß -> nächste Normgröße (Maueröffnungsmaß der Tabelle, Toleranz 15 mm) */
 function nearRow(tab,v){let best=null,bd=1e9;for(const k in tab){const dd=Math.abs(tab[k][0]-v);if(dd<bd){bd=dd;best=+k}}return bd<=15?best:null}
-function derive(d){const rb=num(d.rbB),rh=num(d.rbH);const b=rb!==null?nearRow(DINB,rb):null,h=rh!==null?nearRow(DINH,rh):null;
-  d.brmB=b??"";d.brmH=h??"";["tb","zf","bk","fa","ld"].forEach((k,i)=>{d[k+"B"]=b?DINB[b][i+1]:"";d[k+"H"]=h?DINH[h][i+1]:""})}
+function derive(d){const [TB,TH]=TAB(d),rb=num(d.rbB),rh=num(d.rbH);const b=rb!==null?nearRow(TB,rb):null,h=rh!==null?nearRow(TH,rh):null;
+  d.brmB=b??"";d.brmH=h??"";["tb","zf","bk","fa","ld"].forEach((k,i)=>{d[k+"B"]=b?TB[b][i+1]:"";d[k+"H"]=h?TH[h][i+1]:""})}
 const RM=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
 function countUp(el,from,to,tail){
   if(RM||from===undefined||from===to){el.innerHTML=euro(to)+tail;return}
@@ -1259,6 +1291,7 @@ function bumpCart(){const c=document.querySelector(".cartbtn");if(!c||RM)return;
 function updDoor(id){
   const d=byId(id),pr=price(d),pos=num(d.pos)??"?";
   derive(d);MKEYS.filter(k=>!k.startsWith("rb")).forEach(k=>{const el=document.getElementById(k);if(el&&el.value!==String(d[k])){el.value=d[k];if(d[k]!==""&&!RM){el.parentNode.classList.remove("fill");void el.offsetWidth;el.parentNode.classList.add("fill")}}});
+  const mk=document.getElementById("mSkz");if(mk)mk.innerHTML=massSvg(d);const hk=document.getElementById("hSkz");if(hk)hk.innerHTML=hoeheSvg(d);
   const nh=document.getElementById("normHint");if(nh)nh.hidden=!((num(d.rbB)!==null&&num(d.rbB)>=300&&d.brmB==="")||(num(d.rbH)!==null&&num(d.rbH)>=1000&&d.brmH===""));
   const dt=document.getElementById("dTitle");if(dt)dt.textContent=ttl(d);
   const h=document.getElementById("unitHint");if(h)h.hidden=!["rbB","brmB","tbB"].some(k=>num(d[k])!==null&&num(d[k])<300);
@@ -1292,7 +1325,7 @@ function rowOf(d){
   const kon=d.bauart==="rahmen"?"Rahmentür":"Sperrtür, "+lab("mittel",d.mittel)+", Decklage "+lab("deck",d.deck);
   const besch=lab("drk",d.drk)+"; "+lab("schloss",d.schloss)+"; "+d.bandzahl+" × "+lab("bandtyp",d.bandtyp)+", "+lab("bandfarbe",d.bandfarbe)+"; "+lab("schliess",d.schliess);
   return [String(num(d.pos)??"?"),String(d.raum).trim()+(d.gs?" ("+d.gs+")":""),m("tb"),d.wd?d.wd+" mm":"–",m("zf"),m("bk"),m("fa"),m("ld"),lab("ofl",d.ofl)+", "+farbe(d)[1],d.din?"DIN "+d.din:"–",besch,
-    kon+(d.anschlag==="falz"?", überfälzt":", stumpf"),lab("futter",d.futter),d.la==="none"?"–":lab("la",d.la).split(" – ")[0]+", "+lab("glas",d.glas),
+    kon+(d.anschlag==="falz"?", überfälzt":", stumpf")+", Kante "+d.kante,lab("futter",d.futter),d.la==="none"?"–":lab("la",d.la).split(" – ")[0]+", "+lab("glas",d.glas),
     (d.ss==="none"?"–":lab("ss",d.ss).replace("Schallschutzklasse ",""))+" / "+(d.boden==="absenk"?"Schall-Ex":"Bodenluft"),euro(price(d).total)];
 }
 
@@ -1464,6 +1497,34 @@ async function buildPdf(){
    "Kontrollen: Türliste "+S.listChecks+"×, Positionen "+S.doorChecks+"×, Endprüfung "+o.checks+"×. Bei Bestellung "+(o.errs?o.errs+" offene Fehler"+(o.fehler.length?" (Pos. "+o.fehler.join(", ")+")":"")+(o.fehltTueren?", Türen fehlen":""):"keine offenen Fehler")+"."]
    .forEach(n=>{const l=doc.splitTextToSize("• "+n,W-2*M-90);doc.text(l,M,yn);yn+=l.length*4});
   foot();
+  /* Aufmaßblatt im Händlerformat */
+  doc.addPage();head("Aufmaß Türen und Zargen");
+  {let yy=28;doc.setFontSize(9.5);
+   [["Kommission","EFH Timo"],["Lieferadresse","Baustelle EFH Timo, 91710 Gunzenhausen"],["Datum",dt.toLocaleDateString("de-DE")],["Art","Bestellung"]].forEach(([k,v],i)=>{
+     const x=M+(i%2)*140,y2=yy+Math.floor(i/2)*5.5;doc.setTextColor(93,106,100);doc.setFont("helvetica","normal");doc.text(k,x,y2);doc.setTextColor(29,38,34);doc.setFont("helvetica","bold");doc.text(String(v),x+30,y2)});
+   yy+=14;
+   const body=LIST().map(d=>{const p=String(num(d.pos)??"?"),raum=String(d.raum).trim()+(d.gs?" ("+d.gs+")":"");
+     if(d.art==="glas"){const g=GLAS[d.gsize];return [p,raum,"1","Ganzglastür 1-flg., "+lab("gart",d.gart),"ESG","–","geschliffen",g?g[6]+" × "+g[5]+" (Glas)":"–","Eigenbau",d.din||"–",lab("gdrk",d.gdrk)+(d.gdrk!=="stange"?", "+lab("gkasten",d.gkasten):"")+"; "+lab("gschloss",d.gschloss)+"; "+lab("gband",d.gband)+", "+lab("gbandf",d.gbandf),"–",d.gart.slice(-2,-1)==="1"?"10 mm":"8 mm","siehe Aufmaß Glasdrehtür"]}
+     const ld=v=>num(v)===null?"–":num(v);
+     return [p,raum,"1",(d.bauart==="rahmen"?"Rahmentür":"Sperrtür")+(d.anschlag==="falz"?", überfälzt":", stumpf")+" mit Umfassungszarge ("+lab("futter",d.futter)+")",lab("ofl",d.ofl)+", "+farbe(d)[1],d.bauart==="rahmen"?"–":lab("mittel",d.mittel),d.kante,ld(d.tbH)+" × "+ld(d.tbB),d.wd?d.wd+" mm":"–",d.din||"–",
+       lab("drk",d.drk)+"; "+lab("schloss",d.schloss)+"; "+d.bandzahl+" × "+lab("bandtyp",d.bandtyp)+", "+lab("bandfarbe",d.bandfarbe)+"; "+lab("schliess",d.schliess),d.la==="none"?"–":lab("la",d.la).split(" – ")[0],d.la==="none"?"–":lab("glas",d.glas),
+       [d.ss!=="none"?lab("ss",d.ss).replace("Schallschutzklasse ","Schallschutz "):"",d.boden==="absenk"?"Absenkdichtung":""].filter(Boolean).join(", ")||"–"]});
+   doc.autoTable({startY:yy,head:[["Pos.","Raum","Stück","Türmodell","Holzart / Oberfläche","Mittellage","Kante eckig/rund","Maße Türblatt (Höhe × Breite)","Wandstärke","DIN L/R","Zubehör: Drücker, Schloss, Bänder, Schließblech","LA","Glas","Besonderheiten (Schallschutz, Klimaklasse, Sicherheit)"]],body,
+     styles:{font:"helvetica",fontSize:6.8,cellPadding:1.3,valign:"top",textColor:[29,38,34],lineColor:[213,219,214],lineWidth:.1},headStyles:{fillColor:[220,235,229],textColor:[29,38,34],fontStyle:"bold",fontSize:6.4},
+     columnStyles:{0:{cellWidth:8},1:{cellWidth:20},2:{cellWidth:9},3:{cellWidth:30},5:{cellWidth:16},6:{cellWidth:12},7:{cellWidth:18},8:{cellWidth:14},9:{cellWidth:10},10:{cellWidth:46},11:{cellWidth:9}},margin:{left:M,right:M}});
+   yy=doc.lastAutoTable.finalY+6;doc.setFont("helvetica","normal");doc.setFontSize(7.8);doc.setTextColor(93,106,100);
+   doc.text(doc.splitTextToSize("Maße in mm, Höhe ab fertigem Fußboden. Achtung: Im Aufmaßblatt steht die Höhe zuerst (Höhe × Breite). DIN-Richtung nach DIN 107: Bänder links = DIN links, Blick auf die Öffnungsfläche (Bandseite).",W-2*M),M,yy);doc.setTextColor(29,38,34);
+   foot();
+   /* Aufmaß Glasdrehtür je Glastür */
+   const GL=LIST().filter(d=>d.art==="glas");
+   for(const d of GL){doc.addPage();head("Aufmaß Glasdrehtür");foot();const g=GLAS[d.gsize];
+     const img=await svgToPng(glasMassSvg(d,true),720,600);doc.addImage(img,"PNG",M,26,150,125);
+     let y2=30;const x=M+160;doc.setFontSize(11);doc.setFont("helvetica","bold");doc.text(ttl(d),x,y2);y2+=8;doc.setFontSize(9);
+     [["1. Drehtürtyp","1-flügelig"],["2. DIN-Richtung",d.din?"Anschlag DIN "+(d.din==="L"?"links":"rechts"):"–"],["3. Zargenfalzmaß B × H",g?g[3]+" × "+g[4]+" mm":"–"],["Glasmaß B × H",g?g[5]+" × "+g[6]+" mm (Standardmaß)":"–"],["Bandauflage","241 mm von oben, Abstand 1435 mm"],["Mitte Drücker","908 mm"],
+      ["4. Glasart / Glasdicke",lab("gart",d.gart)],["Bandbohrung",lab("gband",d.gband)+", "+lab("gbandf",d.gbandf)],["Schlosskastenbohrung",d.gdrk==="stange"?"keine (Griffstange)":lab("gkasten",d.gkasten)],["Garnitur / Schloss",lab("gdrk",d.gdrk)+"; "+lab("gschloss",d.gschloss)]]
+      .forEach(([k,v])=>{doc.setFont("helvetica","normal");doc.setTextColor(93,106,100);doc.text(k,x,y2);doc.setTextColor(29,38,34);doc.setFont("helvetica","bold");const l=doc.splitTextToSize(v,70);doc.text(l,x+45,y2);y2+=Math.max(1,l.length)*4.4+1.6});
+     doc.setFont("helvetica","normal");doc.setFontSize(7.8);doc.setTextColor(93,106,100);
+     doc.text(doc.splitTextToSize("Glasmaß aus dem Zargenfalzmaß: Breite -3,5 mm links und -3,5 mm rechts, Höhe -4 mm oben und -7 mm unten. Bei den Zargenfalzmaßen unbedingt das kleinste gemessene Maß angeben.",W-x-M),x,y2+4);doc.setTextColor(29,38,34)}}
   /* Lieferschein */
   doc.addPage();head("Lieferschein");
   {const wk=parseInt(lieferzeit(),10)||4,ld=new Date(dt.getTime()+wk*7*864e5);
@@ -1524,8 +1585,76 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 13:42";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 14:00";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
+/* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
+function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
+  return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c.acc}" stroke-width="1.1" ${dash?'stroke-dasharray="5 3"':""}/><path d="M${x1} ${y-3.5}v7M${x2} ${y-3.5}v7" stroke="${c.acc}" stroke-width="1.1"/><rect x="${cx-w/2}" y="${y-7}" width="${w}" height="13" rx="3" fill="${c.bg}"/><text x="${cx}" y="${y+3.5}" text-anchor="middle" fill="${c.acc}" font-size="10" font-weight="700">${txt}</text>`}
+function dimV(x,y1,y2,txt,c,dash){const h=Math.max(22,txt.length*5+10),cy=(y1+y2)/2;
+  return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c.acc}" stroke-width="1.1" ${dash?'stroke-dasharray="5 3"':""}/><path d="M${x-3.5} ${y1}h7M${x-3.5} ${y2}h7" stroke="${c.acc}" stroke-width="1.1"/><rect x="${x-7}" y="${cy-h/2}" width="13" height="${h}" rx="3" fill="${c.bg}"/><text transform="translate(${x+3.5} ${cy}) rotate(-90)" text-anchor="middle" fill="${c.acc}" font-size="9.5" font-weight="700">${txt}</text>`}
+const SKC=pdf=>pdf?{ink:"#26302b",acc:"#1f4d3f",mut:"#6b756f",bg:"#ffffff",soft:"#dcebe5",surf:"#f6f4ee",red:"#c0392b"}:{ink:"var(--ink)",acc:"var(--accent)",mut:"var(--muted)",bg:"var(--surface-2)",soft:"var(--accent-soft)",surf:"var(--surface)",red:"var(--err)"};
+const vv=(d,k)=>{const n=num(d[k]);return n===null?"?":n};
+/* Horizontalschnitt mit den Werten der aktuellen Position */
+function massSvg(d){
+  const c=SKC(),st=d.anschlag==="stumpf",ext=(x,y1,y2)=>`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${c.mut}" stroke-width=".6" stroke-dasharray="2 2"/>`;
+  let s=`<svg viewBox="0 0 360 252" role="img" aria-label="Maßskizze Horizontalschnitt" font-family="Barlow, sans-serif">
+  <defs><pattern id="hatchM" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="${c.mut}" stroke-width="1"/></pattern></defs>
+  <g stroke="${c.ink}" stroke-width="1.1">
+    <rect x="0" y="110" width="55" height="60" fill="url(#hatchM)"/><rect x="305" y="110" width="55" height="60" fill="url(#hatchM)"/>
+    <rect x="65" y="104" width="10" height="72" fill="${c.surf}"/><rect x="285" y="104" width="10" height="72" fill="${c.surf}"/>
+    <rect x="20" y="98" width="55" height="6" fill="${c.surf}"/><rect x="285" y="98" width="55" height="6" fill="${c.surf}"/>
+    <rect x="20" y="176" width="55" height="6" fill="${c.surf}"/><rect x="285" y="176" width="55" height="6" fill="${c.surf}"/>`;
+  s+=st?`<rect x="78" y="98" width="204" height="36" fill="${c.soft}"/>`:`<rect x="70" y="92" width="220" height="12" fill="${c.soft}"/><rect x="77" y="104" width="206" height="30" fill="${c.soft}"/>`;
+  s+=`</g><g>${ext(20,18,98)}${ext(340,18,98)}${ext(55,34,110)}${ext(305,34,110)}${ext(60,50,110)}${ext(300,50,110)}${ext(65,66,104)}${ext(295,66,104)}`;
+  if(!st)s+=ext(70,82,92)+ext(290,82,92);
+  s+=`${ext(75,176,206)}${ext(285,176,206)}${ext(83,134,224)}${ext(277,134,224)}`;
+  if(st)s+=ext(78,134,242)+ext(282,134,242);
+  s+=`</g>`;
+  s+=dimH(20,340,18,"Bekleidungsaußenmaß "+vv(d,"bkB"),c)+dimH(55,305,34,"Rohbaumaß (Maueröffnung) "+vv(d,"rbB"),c)+dimH(60,300,50,"Baurichtmaß "+vv(d,"brmB"),c,1)+dimH(65,295,66,"Futteraußenmaß "+vv(d,"faB"),c);
+  if(!st)s+=dimH(70,290,82,"Türblatt über Falz "+vv(d,"tbB"),c);
+  s+=dimH(75,285,206,"Zargenfalzmaß "+vv(d,"zfB"),c)+dimH(83,277,224,"Lichter Durchgang "+vv(d,"ldB"),c);
+  if(st)s+=dimH(78,282,242,"Türblatt "+vv(d,"tbB"),c);
+  s+=`<g font-size="9.5" fill="${c.mut}"><text x="4" y="164">Wand</text><text x="330" y="164">Wand</text><text x="180" y="124" text-anchor="middle" fill="${c.ink}">Türblatt ${st?"stumpf":"überfälzt"}</text><text x="22" y="194">Bekleidung</text><text x="78" y="160">Futter</text></g>`;
+  return s+"</svg>";
+}
+/* Vertikalschnitt: alle Höhen ab Oberkante fertiger Fußboden */
+function hoeheSvg(d){
+  const c=SKC(),st=d.anschlag==="stumpf",F=244,ext=(x1,x2,y)=>`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${c.mut}" stroke-width=".6" stroke-dasharray="2 2"/>`;
+  const Y={bk:22,rb:34,brm:38,fa:42,tb:st?52:48,zf:50,ld:54};
+  let s=`<svg viewBox="0 0 360 262" role="img" aria-label="Maßskizze Höhen ab fertigem Fußboden" font-family="Barlow, sans-serif">
+  <defs><pattern id="hatchV" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="${c.mut}" stroke-width="1"/></pattern></defs>
+  <g stroke="${c.ink}" stroke-width="1.1"><rect x="200" y="0" width="70" height="34" fill="url(#hatchV)"/>
+  <rect x="190" y="22" width="10" height="${Y.zf-22}" fill="${c.surf}"/><rect x="270" y="22" width="10" height="${Y.zf-22}" fill="${c.surf}"/>
+  <rect x="200" y="42" width="70" height="8" fill="${c.surf}"/>
+  <rect x="${st?228:222}" y="${Y.tb}" width="${st?28:34}" height="${F-7-Y.tb}" fill="${c.soft}"/></g>
+  <line x1="150" y1="${F}" x2="356" y2="${F}" stroke="${c.red}" stroke-width="1.4" stroke-dasharray="4 2"/><text x="352" y="${F+12}" text-anchor="end" font-size="10" fill="${c.red}" font-weight="700">OKFF (fertiger Fußboden)</text>
+  <text x="262" y="${F-10}" font-size="9" fill="${c.mut}">Bodenluft 7 mm</text><text x="282" y="150" font-size="9.5" fill="${c.ink}">Türblatt</text><text x="282" y="47" font-size="9" fill="${c.mut}">Futter</text>`;
+  const cols=[["bk","Bekleidung",14],["rb","Rohbau",40],["brm","Baurichtmaß",66,1],["fa","Futteraußen",92],["tb","Türblatt",118],["zf","Zargenfalz",144],["ld","Licht",170]];
+  cols.forEach(([k,n,x,dash])=>{s+=ext(x,200,Y[k])+dimV(x,Y[k],F,n+" "+vv(d,k+"H"),c,dash)});
+  return s+"</svg>";
+}
+/* Glastür: Glasmaß und Beschlagpositionen wie auf dem Aufmaßblatt Glasdrehtür */
+function glasMassSvg(d,pdf){
+  const c=SKC(pdf),g=GLAS[d.gsize],L=d.din!=="R";
+  const zb=g?g[3]:"?",zh=g?g[4]:"?",gb=g?g[5]:"?",gh=g?g[6]:"?";
+  const x0=95,x1=265,y0=34,y1=264,hx=L?x0:x1,gx=L?x1-22:x0+22;
+  let s=`<svg ${pdf?'xmlns="http://www.w3.org/2000/svg" ':""}viewBox="0 0 360 300" role="img" aria-label="Aufmaß Glasdrehtür" font-family="Barlow, sans-serif">
+  <rect x="${x0-14}" y="${y0-14}" width="${x1-x0+28}" height="${y1-y0+14}" fill="#d8b98c" stroke="${c.ink}"/>
+  <rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="${pdf?"#fff":c.surf}" stroke="${c.ink}"/>
+  <rect x="${x0+4}" y="${y0+4}" width="${x1-x0-8}" height="${y1-y0-12}" fill="#cfe7ee" fill-opacity=".8" stroke="#7fa3ad"/>
+  <line x1="40" y1="${y1}" x2="320" y2="${y1}" stroke="${c.red}" stroke-width="1.3" stroke-dasharray="4 2"/><text x="320" y="${y1+12}" text-anchor="end" font-size="9" fill="${c.red}" font-weight="700">OKFF</text>`;
+  const bt=y0+28,bb=bt+166;
+  [bt,bb].forEach(y=>{s+=`<rect x="${L?hx-6:hx-14}" y="${y-12}" width="20" height="24" rx="3" fill="#a9b0b4" stroke="${c.ink}" stroke-width=".7"/>`});
+  const dy=y1-105;
+  s+=`<rect x="${gx-9}" y="${dy-14}" width="18" height="30" rx="2" fill="#a9b0b4" stroke="${c.ink}" stroke-width=".7"/><rect x="${L?gx-30:gx}" y="${dy-3}" width="30" height="5" rx="2.5" fill="#c3c9cc" stroke="${c.ink}" stroke-width=".5"/>`;
+  s+=dimH(x0,x1,12,"Zargenfalzmaß "+zb,c)+dimH(x0+4,x1-4,y1+28,"Glas "+gb+" (−3,5 je Seite)",c);
+  s+=dimV(L?x1+30:x0-30,y0,y1,"Zargenfalzmaß "+zh,c)+dimV(L?x1+56:x0-56,y0+4,y1-8,"Glashöhe "+gh+" (−4 oben, −7 unten)",c);
+  const bx=L?x0-34:x1+34;
+  s+=dimV(bx,y0,bt,"241",c)+dimV(bx,bt,bb,"Auflage Band 1435",c);
+  const dx=L?x1-50:x0+50;s+=dimV(dx,dy,y1,"Mitte Drücker 908",c);
+  return s+"</svg>";
+}
+
 window.__tk={S,buildPdf,check,price,norm,go};
 
 /* Eingangstür: Die Seite liegt hinter einer Tür, durch die man eintritt */
