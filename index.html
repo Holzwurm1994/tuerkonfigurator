@@ -484,6 +484,8 @@ details[open] .falz .dim{animation:dimIn .45s ease both;animation-delay:calc(.15
 .gsz .od b{color:var(--ink);font-family:var(--f-mono);font-weight:600}
 .card.teams{margin-bottom:12px;border-left:4px solid #5b5fc7}
 .card.teams ol{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
+.updbar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:95;background:#1f4d3f;color:#fff;border:0;border-radius:999px;padding:10px 16px;font:600 14px var(--f-body);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
 </style>
 <script>
 (function(){
@@ -692,6 +694,7 @@ function doorSvg(d,o){
     s+=`<rect x="22" y="96" width="56" height="62" fill="${pc}" stroke="${stroke}" stroke-width=".8"/>`;}
   if(d.la==="la1")s+=`<rect x="42" y="30" width="16" height="76" fill="${glass}" stroke="${stroke}" stroke-width="1"/><line x1="45" y1="36" x2="52" y2="48" stroke="#fff" stroke-width="1.2" opacity=".8"/>`;
   if(d.la==="la2")s+=`<rect x="24" y="22" width="52" height="${d.bauart==="rahmen"?62:112}" fill="${glass}" stroke="${stroke}" stroke-width="1"/><line x1="30" y1="30" x2="44" y2="52" stroke="#fff" stroke-width="1.4" opacity=".8"/>`;
+  s+=`<path d="M ${hingeL?13:87} 11 L ${hingeL?87:13} 90 L ${hingeL?13:87} 169" fill="none" stroke="${stroke}" stroke-width=".7" stroke-dasharray="3 2.4" opacity=".55"/>`;
   const ys=d.bandzahl==="3"?[26,88,150]:[26,150];
   if(d.bandtyp!=="verd")ys.forEach(y=>{s+=`<rect x="${hx}" y="${y-6}" width="4" height="13" rx="1.5" fill="${bandCol}" stroke="${stroke}" stroke-width=".6"/>`});
   const drkCol=d.drk==="schw"?"#1d1f20":"#a9b0b4";
@@ -962,6 +965,7 @@ function glasSvg(d,o){
   s+=`<rect x="13" y="11" width="74" height="155" fill="${tint}" fill-opacity="${d.gart&&d.gart.startsWith("klar")?.75:.95}" stroke="#7fa3ad" stroke-width="1"/>`;
   if(d.gart==="dekor8")[40,70,100,130].forEach(y=>{s+=`<rect x="13" y="${y}" width="74" height="4" fill="#cfe7ee" opacity=".9"/>`});
   if(d.gart&&d.gart.startsWith("klar"))s+=`<path d="M22 24 L40 60 M28 22 L50 66" stroke="#fff" stroke-width="2" opacity=".75"/>`;
+  s+=`<path d="M ${hingeL?14:86} 12 L ${hingeL?86:14} 88 L ${hingeL?14:86} 165" fill="none" stroke="${stroke}" stroke-width=".7" stroke-dasharray="3 2.4" opacity=".5"/>`;
   const ys=d.gband==="studio3"?[24,88,150]:[24,150];
   ys.forEach(y=>{s+=d.gband==="flach"?`<rect x="${hx-2}" y="${y-6}" width="8" height="12" rx="1" fill="${m[1]}" stroke="${stroke}" stroke-width=".5"/>`:`<rect x="${hx-3}" y="${y-8}" width="12" height="16" rx="2" fill="${m[1]}" stroke="${stroke}" stroke-width=".6"/><circle cx="${hx+5}" cy="${y-3}" r="1" fill="${m[2]}"/><circle cx="${hx+5}" cy="${y+3}" r="1" fill="${m[2]}"/>`});
   const dc=d.gdrk==="schw"?METAL.schw[1]:"#a9b0b4";
@@ -1487,10 +1491,13 @@ if(S.order)view={name:"done"};
 render();
 getDownloads();
 })();
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 20.11.2026, 13:27";f.appendChild(p)}})();
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").then(r=>{r.update&&r.update()}).catch(()=>{})});
-  let reloaded=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloaded)return;reloaded=true;const i=document.getElementById("intro");if(i&&!i.hidden)location.reload()})}
+  let reloaded=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloaded)return;reloaded=true;const i=document.getElementById("intro");if(i&&!i.hidden){location.reload();return}
+    const u=document.createElement("button");u.className="updbar";u.textContent="Neue Version verfügbar – tippen zum Laden";u.onclick=()=>location.reload();document.body.appendChild(u)});
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{})})}
 </script>
 </body>
 </html>
