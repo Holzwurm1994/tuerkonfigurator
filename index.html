@@ -143,7 +143,7 @@ details.info p{font-size:14px;margin:8px 0 0}
    <button class="leaf" id="leaf" aria-label="Tür öffnen und eintreten">
     <span class="panel p1"></span><span class="panel p2"></span>
     <span class="hinge h1"></span><span class="hinge h2"></span>
-    <span class="plate"><span>Türen-</span><span>Konfigurator</span></span>
+    <span class="plate"><span>Hier geht’s zu</span><span>Ihrer Traumtür</span></span>
     <span class="rosette"></span><span class="lever"></span><span class="keyhole"></span><span class="ikey" aria-hidden="true"><svg viewBox="0 0 40 40"><defs><linearGradient id="kG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3f5f6"/><stop offset="1" stop-color="#8f979b"/></linearGradient></defs><rect x="6" y="11" width="28" height="18" rx="9" fill="url(#kG)" stroke="#6d757a"/><circle cx="12" cy="20" r="3" fill="#3b2a1a" opacity=".55"/><rect x="18" y="18.5" width="12" height="3" rx="1.5" fill="#6d757a" opacity=".5"/></svg></span>
    </button>
   </div>
@@ -545,6 +545,7 @@ footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
 .lxe{display:grid;gap:8px;scroll-margin-top:100px}
 .lxe.flash{animation:lxflash 1.6s ease}
 @keyframes lxflash{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
+@supports (width:1cqw){.leaf{container-type:inline-size}.plate{font-size:min(8.6cqw,30px);padding:.45em .8em}}
 </style>
 <script>
 (function(){
@@ -1661,7 +1662,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 08:36";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 09:33";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
