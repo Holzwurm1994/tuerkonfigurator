@@ -553,7 +553,7 @@ footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
 "use strict";
 const STORE="tuerkonfig-timo-v3";
 /* Sollwerte (Rohbau B/H, BRM B/H, Türblatt B/H, Wand, DIN, Besonderheit) – leicht verpackt */
-const SOLL=JSON.parse(atob("eyIxIjpbMTAxMCwyMTM1LDEwMDAsMjEyNSw5ODUsMjExMCwxNDUsIlIiLCJMQSJdLCIyIjpbNzYwLDIxMzUsNzUwLDIxMjUsNzM1LDIxMTAsMjcwLCJMIiwiQkFEIl0sIjQiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIlIiLCJTUyJdLCI1IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMjcwLCJMIiwiIl0sIjYiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIlIiLCJCQUQiXSwiNyI6Wzg4NSwyMTM1LDg3NSwyMTI1LDg2MCwyMTEwLDE0NSwiUiIsIiJdLCI4IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMTQ1LCJSIiwiIl19"));
+const SOLL=JSON.parse(atob("eyIxIjpbMTAxMCwyMTM1LDEwMDAsMjEyNSw5ODUsMjExMCwxNDUsIlIiLCJMQSJdLCIyIjpbNzYwLDIxMzUsNzUwLDIxMjUsNzM1LDIxMTAsMjcwLCJMIiwiQkFEIl0sIjQiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIlIiLCJTUyJdLCI1IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMjcwLCJMIiwiIl0sIjYiOls4ODUsMjEzNSw4NzUsMjEyNSw4NjAsMjExMCwxNDUsIkwiLCJCQUQiXSwiNyI6Wzg4NSwyMTM1LDg3NSwyMTI1LDg2MCwyMTEwLDE0NSwiTCIsIiJdLCI4IjpbODg1LDIxMzUsODc1LDIxMjUsODYwLDIxMTAsMTQ1LCJMIiwiIl19"));
 /* Maßtabelle Falztüren DIN 18101: Baurichtmaß → [Mauermaß, Türblatt, Zargenfalz, Bekleidung außen, Futter außen, lichter Durchgang] */
 const DINB={500:[510,485,466,586,490,444],625:[635,610,591,711,615,569],750:[760,735,716,836,740,694],875:[885,860,841,961,865,819],1000:[1010,985,966,1086,990,944],1125:[1135,1110,1091,1211,1115,1069],1250:[1260,1235,1216,1336,1240,1194],1375:[1385,1360,1341,1461,1365,1319]};
 /* Maßtabelle Türelement stumpf einschlagend (DIN 18100/18101, Bodenluft 7 mm, Bekleidung 63 mm): [Rohbaumaß, Türblatt, Zargenfalz, Bekleidungsaußen, Futterbrettaußen, licht] */
@@ -1679,7 +1679,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 09:54";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 10:38";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
