@@ -539,13 +539,14 @@ footer.site .ver{font-size:11px;opacity:.6;margin:8px 0 0}
 .lxgroups{display:flex;flex-wrap:wrap;gap:6px}
 .lxf{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 13.5px var(--f-body);cursor:pointer}
 .lxf.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.lxlist{display:grid;gap:10px;grid-auto-flow:row}
-@media (min-width:900px){.lxlist{grid-template-columns:1fr 1fr;align-items:start}.lxlet{grid-column:1/-1}}
+.lxlist{display:grid;gap:10px;grid-auto-flow:row;grid-template-columns:minmax(0,1fr)}.lxe{min-width:0}
+@media (min-width:900px){.lxlist{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.lxlet{grid-column:1/-1}}
 .lxlet{font-size:26px;color:var(--accent);border-bottom:2px solid var(--line);padding-bottom:2px;margin-top:10px}
 .lxe{display:grid;gap:8px;scroll-margin-top:100px}
 .lxe.flash{animation:lxflash 1.6s ease}
 @keyframes lxflash{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
 @supports (width:1cqw){.leaf{container-type:inline-size}.plate{font-size:min(8.6cqw,30px);padding:.45em .8em}}
+.lxet{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.lxet svg{width:100%;height:auto;max-width:420px;max-height:none;overflow:visible}
 </style>
 <script>
 (function(){
@@ -578,11 +579,11 @@ const OPT={
   la:[["none","Ohne Lichtausschnitt","geschlossenes Türblatt",0],["la1","LA 1 – schmal, Augenhöhe","Ausschnitt ca. 200 × 1000 mm, ab Werk",135],["la2","LA 2 – groß","Ausschnitt ca. 450 × 1450 mm, ab Werk",165]],
   glas:[["esg","ESG klar","Einscheiben-Sicherheitsglas",0],["esgs","ESG satiniert","blickdicht, lichtdurchlässig",25],["vsg","VSG klar","Verbund-Sicherheitsglas",45]],
   ofl:[["cpl","CPL-Beschichtung","sehr robust, pflegeleicht",0],["lack","Lackiert","seidenmatt, Farbton nach RAL",55],["furn","Echtholzfurnier","lackiert, jede Tür ein Unikat",145],["hpl","Schichtstoff (HPL)","hochdruckverpresst, besonders stoß- und kratzfest",85]],
-  bandtyp:[["e2","Einbohrband, 2-teilig","Standard für Falztüren",0],["e3","Einbohrband, 3-teilig","für schwere Türblätter",18],["verd","Verdeckt liegendes Band","nur bei stumpfen Türen",120]],
+  bandtyp:[["e2","Einbohrband, 2-teilig","Standard für Falztüren",0],["e3","Einbohrband, 3-teilig","für schwere Türblätter",18],["verd","Verdeckt liegendes Band","nur bei stumpfen Türen, z. B. Tectus, 3D-verstellbar",120]],
   bandfarbe:[["vern","vernickelt","silbrig glänzend",0],["edel","edelstahlfarbig","passt zu Edelstahldrückern",8],["schw","schwarz","passt zu schwarzen Drückern",12]],
   bandzahl:[["2","2 Bänder","Standard",0],["3","3 Bänder","für schwere oder hohe Türen",14]],
   drk:[["rund","Edelstahl, Rundrosette","Drücker L-Form, matt gebürstet",39],["schild","Edelstahl, Kurzschild","klassisch",49],["schw","Schwarz matt, Rundrosette","Drücker eckig",69]],
-  schliess:[["lappen","Lappenschließblech","Standard für Holzzargen",0],["winkel","Winkelschließblech, verstellbar","Anpressdruck nachstellbar",9],["dicht","Schließblech mit Dichtungsausgleich","für Zargen mit Dichtung/Schallschutz",14]],
+  schliess:[["winkel","Winkelschließblech","für überfälzte Türen, schmaler Schenkel greift um den Zargenfalz",0],["lappen","Lappenschließblech","für stumpf einschlagende Türen ohne Falz",0],["dicht","Schließblech mit Dichtungsausgleich","für Zargen mit Dichtung/Schallschutz",14]],
   kante:[["rund","Kante gerundet","Standard bei Falztüren, stoßunempfindlicher",0],["eckig","Kante eckig","geradlinige Optik, bei stumpfen Türen immer eckig",0]],
   zkante:[["rund","Rund (RU)","gerundete Kanten, Standard",0],["eckig","Eckig (EC)","geradlinig, modern",0],["profil","Profil (PR)","Zierprofil an der Bekleidung, klassisch",25],["primo","Primo (PM)","sanft gebrochene Kante zwischen rund und eckig",15],["hohl","Hohlkehle (HK)","nach innen gewölbtes Profil, Landhausstil",35]],
   gkasten:[["studio","Schlosskasten Studio","schmaler Kasten, Schlosskastenbohrung Studio",0],["office","Schlosskasten Office","rechteckiger Kasten, Schlosskastenbohrung Office",25]],
@@ -604,11 +605,11 @@ const lab=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[1]:"–"};
 const delta=(k,v)=>{const o=OPT[k].find(x=>x[0]===v);return o?o[3]:0};
 const farbe=d=>(FARBEN[d.ofl]||[]).find(f=>f[0]===d.farbe)||FARBEN[d.ofl][0];
 
-function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"lappen",anschlag:"falz",kante:"rund",zkante:"rund",wds:"",gkasten:"studio",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb",art:"futter",gsize:"",gart:"sat8",gband:"studio2",gbandf:"edel",gdrk:"rund",gschloss:"falle"})}
+function blank(){const m={};MKEYS.forEach(k=>m[k]="");return Object.assign(m,{pos:"",raum:"",gs:"",wd:"",din:"",schliess:"winkel",anschlag:"falz",kante:"rund",zkante:"rund",wds:"",gkasten:"studio",futter:"span",bauart:"sperr",mittel:"roehren",deck:"hdf",ss:"none",boden:"luft",la:"none",glas:"esg",ofl:"cpl",farbe:"weiss",bandtyp:"e2",bandfarbe:"vern",bandzahl:"2",drk:"rund",schloss:"bb",art:"futter",gsize:"",gart:"sat8",gband:"studio2",gbandf:"edel",gdrk:"rund",gschloss:"falle"})}
 /* Abhängigkeiten zwischen Optionen, wie ein echter Konfigurator sie erzwingt */
 function norm(d){
   if(d.ss!=="none"){d.bauart="sperr";if(d.mittel!=="sand"&&d.mittel!=="voll")d.mittel="sand";d.boden="absenk";d.bandzahl="3";if(d.bandtyp==="e2")d.bandtyp="e3"}
-  if(d.anschlag==="stumpf"){d.bandtyp="verd";d.kante="eckig"}else if(d.bandtyp==="verd")d.bandtyp="e2";
+  if(d.anschlag==="stumpf"){d.bandtyp="verd";d.kante="eckig";if(d.schliess==="winkel")d.schliess="lappen"}else if(d.bandtyp==="verd")d.bandtyp="e2";
   if(!(FARBEN[d.ofl]||[]).some(f=>f[0]===d.farbe))d.farbe=FARBEN[d.ofl][0][0];
   return d;
 }
@@ -624,6 +625,7 @@ function disabled(key,val,d){
   if(key==="gschloss"&&val!=="falle"&&d.gdrk==="stange")return true;
   if(key==="bandtyp"&&d.anschlag==="stumpf"&&val!=="verd")return true;
   if(key==="kante"&&d.anschlag==="stumpf"&&val==="rund")return true;
+  if(key==="schliess"&&d.anschlag==="stumpf"&&val==="winkel")return true;
   if(key==="bandtyp"&&d.anschlag==="falz"&&val==="verd")return true;
   return false;
 }
@@ -748,7 +750,8 @@ function check(d,key){
   if(s[8]==="SS"&&d.la!=="none")W.push("Lichtausschnitt in einer Schallschutztür schwächt den Schallschutz. Lieber weglassen.");
   if(s[8]==="SS"&&d.ss!=="none")W.push("Hinweis an Timo: Die Wand ist nur 145 mm dick und begrenzt den Schallschutz mit.");
   if(s[8]!=="LA"&&d.la!=="none")W.push("Lichtausschnitt hat Timo für diesen Raum nicht gewünscht.");
-  if(d.ss!=="none"&&d.schliess==="lappen")W.push("Bei Schallschutz mit Dichtung passt ein Schließblech mit Dichtungsausgleich besser.");
+  if(d.anschlag==="falz"&&d.schliess==="lappen")W.push("Schließblech: Für überfälzte Türen nimmt man ein Winkelschließblech mit schmalem Schenkel. Das Lappenschließblech ist für stumpf einschlagende Türen.");
+  if(d.ss!=="none"&&d.schliess!=="dicht")W.push("Bei Schallschutz mit Dichtung passt ein Schließblech mit Dichtungsausgleich besser.");
   if(s[8]==="BAD"&&d.schloss!=="wc")W.push("Für ein Bad ist ein WC-Schloss üblich.");
   if(d.mittel==="wabe"&&d.bauart==="sperr")W.push("Wabeneinlage ist sehr leicht und wenig stabil. Passt das zu einem Wohnhaus?");
   if(d.ofl==="furn"&&d.deck==="hdf"&&d.bauart==="sperr")W.push("Für Echtholzfurnier ist Sperrholz als Decklage der übliche Träger.");
@@ -1070,7 +1073,7 @@ const OPTICO={
   bandfarbe:{vern:()=>dotIco("vern"),edel:()=>dotIco("edel"),schw:()=>dotIco("schw")},
   drk:{rund:()=>leverIco("rund"),schild:()=>leverIco("schild"),schw:()=>leverIco("schw")},
   schloss:{bb:()=>lockIco("bb"),pz:()=>lockIco("pz"),wc:()=>lockIco("wc")},
-  schliess:{lappen:()=>strikeIco("lappen"),winkel:()=>strikeIco("winkel"),dicht:()=>strikeIco("dicht")},
+  schliess:{winkel:()=>strikeIco("winkel"),lappen:()=>strikeIco("lappen"),dicht:()=>strikeIco("dicht")},
   boden:{luft:()=>bodenIco("luft"),absenk:()=>bodenIco("absenk")}
 };
 /* Schall-Ex: Schnitt Türunterkante, Dichtung senkt sich beim Schließen */
@@ -1620,11 +1623,25 @@ async function buildPdf(){
    doc.setFont("helvetica","normal");doc.setFontSize(8.5);
    const hin=["Ware bei Anlieferung sofort auf Vollständigkeit und Transportschäden prüfen. Schäden auf diesem Lieferschein vermerken."];
    if(LIST().some(d=>d.art==="glas"))hin.push("Glastürblatt stehend lagern und transportieren, Kanten schützen. ESG kann nachträglich nicht bearbeitet werden.");
+   hin.push("Etiketten an Türblatt und Zarge mit der Bestellung vergleichen (Maß, Wanddicke, DIN-Richtung), siehe Seite Etiketten.");
    hin.push("Türblätter liegend und trocken lagern, nicht in Räumen mit frischem Estrich oder Putz (Feuchtigkeit).");
    yy+=6;hin.forEach(h=>{const l=doc.splitTextToSize("• "+h,W-2*M);doc.text(l,M,yy);yy+=l.length*4.2});
    yy=Math.max(yy+10,H-34);doc.setDrawColor(29,38,34);
    [["Ware vollständig und unbeschädigt erhalten",M],["Fahrer / Lieferant",M+150]].forEach(([t2,x])=>{doc.line(x,yy,x+120,yy);doc.setFontSize(7.5);doc.setTextColor(93,106,100);doc.text("Datum, Unterschrift – "+t2,x,yy+4);doc.setTextColor(29,38,34)});
    foot();}
+  /* Etiketten: so sehen die Aufkleber auf Türblatt und Zarge aus */
+  {const LE=LIST(),per=5;LE.forEach((d,i)=>{
+    if(i%per===0){doc.addPage();head("Etiketten (Packstückkennzeichnung)");doc.setFontSize(8.5);doc.setTextColor(93,106,100);doc.setFont("helvetica","normal");
+      doc.text("Bei der Anlieferung jedes Etikett mit der Bestellung vergleichen: Länge × Breite, Wanddicke, Anschlagrichtung (DIN L/R). Erst dann einbauen.",M,27);foot()}
+    const yy=31+(i%per)*33;
+    etiketten(d).forEach((e,j)=>{const x=M+j*138,w=134,h=29;
+      doc.setDrawColor(154,163,158);doc.setLineWidth(.25);doc.roundedRect(x,yy,w,h,1.5,1.5,"S");doc.setFillColor(31,77,63);doc.rect(x,yy,w,6,"F");
+      doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.text(e.t,x+3,yy+4.3);doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(e.pos.slice(0,40),x+w-3,yy+4.3,{align:"right"});
+      doc.setTextColor(29,38,34);doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.text(doc.splitTextToSize(e.a,96)[0],x+3,yy+11.5);
+      doc.setFontSize(10);doc.text(e.b,x+3,yy+17.5);doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(80,88,84);doc.text(doc.splitTextToSize(e.c,w-6)[0],x+3,yy+22.5);
+      doc.setTextColor(140,140,140);doc.text("Schreinerei Altmühltal",x+3,yy+27);
+      if(e.t!=="BESCHLAGKARTON"){let bx=x+w-33;doc.setFillColor(34,34,34);etBars(e.b).forEach((bw,k)=>{if(k%2===0)doc.rect(bx,yy+8.5,bw*.28,11,"F");bx+=bw*.28+.2})}
+    })});}
   /* Detailseiten mit Türbildern: 4 Positionen je Seite */
   const LL=LIST();
   const imgs=await Promise.all(LL.map(d=>svgToPng(doorSvg(d,{stroke:"#26302b"}),300,516)));
@@ -1662,7 +1679,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 09:33";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 21.11.2026, 09:54";f.appendChild(p);let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
@@ -1733,7 +1750,7 @@ function glasMassSvg(d,pdf){
 }
 
 /* ---------- Lexikon / Glossar ---------- */
-const LXG={M:"Maße & Normen",Z:"Zarge & Futter",T:"Türblatt",R:"Richtung & Seiten",B:"Beschläge",G:"Glas, Oberfläche & Schall"};
+const LXG={M:"Maße & Normen",Z:"Zarge & Futter",T:"Türblatt",R:"Richtung & Seiten",B:"Beschläge",G:"Glas, Oberfläche & Schall",O:"Objekttüren"};
 /* [id, Begriff, Gruppe, auch-Begriffe, Erklärung, siehe-auch, Bild, Wörter zum Verlinken im Ablauf] */
 const LEX=[
  ["rb","Rohbaumaß (Maueröffnungsmaß)","M",["Maueröffnung","Rohbauöffnung"],"Das Maß der Wandöffnung im Rohbau, so wie es im Plan steht. Bei Innentüren ist die Maueröffnung nach DIN 18100 etwa 10 mm breiter und 5 mm höher als das Baurichtmaß (z. B. 885 × 2130 für Baurichtmaß 875 × 2125). Im Konfigurator trägst du nur dieses Maß ein.",["brm","masstab","okff"],"mass",["Rohbaumaß","Rohbaumaße","Maueröffnungsmaß","Maueröffnung","Rohbauhöhe","Rohbaubreite"]],
@@ -1754,10 +1771,10 @@ const LEX=[
  ["aufmass","Aufmaß","M",[],"Messen vor Ort: Breite und Höhe der Öffnung an mehreren Stellen, Wanddicke an mehreren Stellen und die gewünschte Öffnungsrichtung. Bei Abweichungen gilt das kleinste Maß. Das Ergebnis kommt in die Aufmaßtabelle.",["rb","wanddicke","meter"],"",["Aufmaß","Aufmaßtabelle"]],
  ["masstab","Maßtabelle","M",[],"Herstellertabelle, in der zu jedem Baurichtmaß alle abhängigen Maße stehen: Maueröffnung, Bestellmaß, Zargenfalz, Bekleidung, Futter und lichtes Durchgangsmaß. Falztüren und Stumpftüren haben unterschiedliche Tabellen.",["brm","falztuer","stumpf"],"",["Maßtabelle","Maßtabelle Falztüren","Maßtabelle Stumpftüren"]],
 
- ["zarge","Zarge","Z",[],"Rahmen in der Wandöffnung, an dem die Tür angeschlagen wird. Bei Wohnungsinnentüren meist eine Umfassungszarge aus Holzwerkstoff, außerdem gibt es Blockzargen und Stahlzargen.",["uz","stock"],"",[]],
- ["uz","Umfassungszarge","Z",["Futterzarge"],"Zarge aus Futter und zwei Bekleidungen, die die Wand an der Öffnung komplett umfasst. Standard bei Wohnungsinnentüren. Sie wird passend zur Wanddicke bestellt.",["futter","bekl","wanddicke"],"",["Umfassungszarge"]],
+ ["zarge","Zarge","Z",[],"Rahmen in der Wandöffnung, an dem die Tür angeschlagen wird. Bei Wohnungsinnentüren meist eine Umfassungszarge aus Holzwerkstoff, außerdem gibt es Blockzargen und Stahlzargen. Nach der Form unterscheidet man vier Türumrahmungen: Blockrahmen, Blendrahmen, Zargenrahmen und Futterrahmen.",["uz","stock","umrahm","blend","zrahmen"],"",[]],
+ ["uz","Umfassungszarge","Z",["Futterzarge","Futterrahmen"],"Zarge aus Futter und zwei Bekleidungen, die die Wand an der Öffnung komplett umfasst. Standard bei Wohnungsinnentüren. Sie wird passend zur Wanddicke bestellt. In der Fachsprache heißt diese Bauart Futterrahmentür: Das Futter umfasst die Mauerleibung, die Bekleidungen decken die Fugen ab.",["futter","bekl","wanddicke","umrahm"],"",["Umfassungszarge","Futterrahmentür","Futterrahmen"]],
  ["futter","Futter (Futterbrett)","Z",["Futterbrett"],"Das Brett, das die Laibung, also die Wanddicke in der Öffnung, auskleidet. An ihm sitzen Bandaufnahme und Schließblech. Ab 330 mm Wanddicke werden zwei Futterbretter kombiniert.",["uz","fa","schattennut"],"",["Futterbrett","Futterbretter","Futtermaterial"]],
- ["bekl","Bekleidung","Z",["Falzbekleidung","Zierbekleidung"],"Leiste, die die Fuge zwischen Futter und Wand abdeckt. Die Falzbekleidung ist fest mit dem Futter verbunden und trägt den Falz. Die Zierbekleidung auf der Gegenseite wird eingesteckt und gleicht kleine Unterschiede der Wanddicke aus.",["uz","bk","maul"],"",["Bekleidung","Bekleidungen","Falzbekleidung","Zierbekleidung"]],
+ ["bekl","Bekleidung","Z",["Falzbekleidung","Zierbekleidung"],"Leiste, die die Fuge zwischen Futter und Wand abdeckt. Die Falzbekleidung ist fest mit dem Futter verleimt und trägt den Falz, weil Schloss und Schließblech ein festes Maß brauchen. Die Zierbekleidung auf der Gegenseite gleicht Mauertoleranzen und kleine Unterschiede der Wanddicke aus und wird erst nach dem Setzen der Zarge eingesteckt bzw. aufgeleimt.",["uz","bk","maul"],"",["Bekleidung","Bekleidungen","Falzbekleidung","Zierbekleidung"]],
  ["wanddicke","Wanddicke","Z",["Wandstärke"],"Dicke der fertigen Wand mit Putz oder Fliesen, an mehreren Stellen gemessen. Danach wird die Zarge bestellt. Hersteller liefern Standardstufen von 80 bis 490 mm, alles dazwischen ist ein Sondermaß.",["maul","sonder","aufmass"],"",["Wanddicke","Wanddicken","Wandstärke"]],
  ["maul","Zargenmaulweite","Z",[],"Abstand zwischen den beiden Bekleidungen, also die Wanddicke, für die eine Zarge gebaut ist. Die Zierbekleidung lässt sich ein wenig verstellen.",["wanddicke","bekl","verstell"],"",["Zargenmaulweite"]],
  ["bandtasche","Bandtasche (Bandaufnahme)","Z",["Bandaufnahme"],"Aufnahme für das Band in der Zarge. Sie steht auf der Rückseite des Futters etwas über. Deshalb braucht die Zarge eine Maueröffnung von Baurichtmaß + 10 mm, und bei Ständerwänden muss dafür Platz geschaffen werden.",["staender","band","fa"],"",["Bandtasche","Bandtaschen","Bandaufnahme","Bandaufnahmen"]],
@@ -1765,7 +1782,7 @@ const LEX=[
  ["staender","Ständerwand","Z",["Trockenbauwand"],"Leichtbauwand aus Metall- oder Holzständern mit Gipsplatten. Weil es keine Fuge wie im Mauerwerk gibt, muss bauseits Platz für die überstehenden Bandtaschen geschaffen werden.",["bandtasche","fuge"],"",["Ständerwand","Ständerwänden","Ständerwände"]],
  ["doppelfalz","Doppelfalzzarge","Z",[],"Zarge mit zwei Falzen, z. B. für Schallschutz- oder Sicherheitstüren. Bei Holzumfassungszargen wird das lichte Durchgangsmaß dadurch in der Höhe um 13 mm und in der Breite um 26 mm kleiner.",["ld","ss"],"",["Doppelfalzzarge"]],
  ["schattennut","Schattennut","Z",[],"Schmale, gewollte Nut als Gestaltungsdetail. Bei sehr dicken Wänden entsteht sie z. B. dort, wo zwei Futterbretter mit einer Feder zusammengesteckt werden.",["futter"],"",["Schattennut"]],
- ["stock","Stockrahmen (Blockrahmen, Blockzarge)","Z",["Blockrahmen","Blockzarge"],"Massiver Rahmen aus Kantholz (z. B. 65 × 75 mm), der in die Wandöffnung gesetzt wird. Rundum bleiben 5 bis 10 mm Luft zum Ausrichten. Im Projekt Timo baut ihr den Stockrahmen für das Wohnzimmer selbst.",["ganzglas","zf"],"",["Stockrahmen","Blockzarge","Blockrahmen"]],
+ ["stock","Stockrahmen (Blockrahmen, Blockzarge)","Z",["Blockrahmen","Blockzarge"],"Massiver Rahmen mit annähernd quadratischem Querschnitt aus Kantholz (z. B. 65 × 75 mm) Er sitzt auf der Mauer oder in der Mauerleibung, deshalb heißt er auch Stock oder Stockrahmen. Rundum bleiben 5 bis 10 mm Luft zum Ausrichten. Im Projekt Timo baut ihr den Stockrahmen für das Wohnzimmer selbst.",["ganzglas","zf","umrahm"],"",["Stockrahmen","Blockzarge","Blockrahmen"]],
 
  ["falztuer","Falztür (überfälzte Tür)","T",["überfälzt"],"Türblatt mit umlaufendem Falz. Im geschlossenen Zustand liegt der Überschlag auf der Zarge auf und deckt die Fuge ab. Standard bei Wohnungsinnentüren.",["ueberschlag","falz","stumpf"],"falz",["Falztür","Falztüren","überfälzt","überfälzte"]],
  ["stumpf","Stumpf einschlagende Tür","T",["stumpfe Tür"],"Türblatt ohne Falz, das flächenbündig in die Zarge schlägt. Moderne Optik, braucht verdeckt liegende Bänder, eine eckige Kante und eine eigene Maßtabelle.",["falztuer","verdeckt","masstab"],"stumpf",["stumpf einschlagend","Stumpftüren","stumpfe Türen","stumpfen Türen"]],
@@ -1785,17 +1802,17 @@ const LEX=[
  ["geh","Gehflügel / Standflügel","R",["Standflügel"],"Bei zweiflügeligen Türen wird der Gehflügel normal benutzt. Der Standflügel bleibt meist geschlossen und wird oben und unten verriegelt.",["dinlr"],"",["Gehflügel","Standflügel"]],
  ["symbol","Öffnungssymbol","R",["Öffnungsdreieck"],"In der Ansicht zeigt ein gestricheltes Dreieck die Öffnungsrichtung: Die Spitze liegt auf der Schlossseite, die Grundlinie an der Bandseite. Im Grundriss zeigt ein Viertelkreis, wohin die Tür aufschlägt.",["dinlr","oeffnung"],"din",["Öffnungssymbol","Türsymbol"]],
 
- ["band","Band (Einbohrband)","B",["Einbohrband","Bänder"],"Drehlager der Tür. Einbohrbänder werden in Türblatt und Zarge eingebohrt. 2-teilige sind Standard, 3-teilige tragen schwere Türen besser. Schwere oder hohe Türen bekommen 3 Bänder.",["verdeckt","bandtasche","oeffnung"],"band",["Einbohrband","Einbohrbänder"]],
- ["verdeckt","Verdeckt liegendes Band","B",[],"Band, das bei geschlossener Tür unsichtbar in Türblatt und Zarge eingelassen ist. Für stumpf einschlagende Türen nötig.",["band","stumpf"],"verd",["Verdeckt liegendes Band","verdeckte Bänder","verdeckt liegende Bänder"]],
- ["drueck","Drückergarnitur","B",["Drücker","Rosette","Kurzschild"],"Drücker (Klinke) für beide Seiten mit Abdeckungen. Rosetten sind kleine runde Abdeckungen für Drücker und Schlüsselloch, ein Kurzschild ist eine längliche Platte für beides.",["schloss","drhoehe"],"drk",["Drückergarnitur","Rundrosette","Kurzschild"]],
- ["schloss","Einsteckschloss","B",["Falle","Riegel"],"Schloss, das in eine Ausfräsung im Türblatt gesteckt wird. Die Falle schnappt beim Zudrücken ein, der Riegel fährt beim Abschließen aus.",["bb","pz","wc","sb","dorn"],"schloss",["Einsteckschloss","Zimmertürschloss"]],
+ ["band","Band (Einbohrband)","B",["Einbohrband","Bänder"],"Drehlager der Tür. Einbohrbänder werden in Türblatt und Zarge eingebohrt. 2-teilige sind Standard, 3-teilige tragen schwere Türen besser. Schwere oder hohe Türen bekommen 3 Bänder. Weitere Bänder für Drehtüren: Einbohrband mit Anschraubtasche, Kombiband sowie Lappenbänder (gerade oder gekröpft).",["verdeckt","bandtasche","oeffnung","kombi","lappenband","anschraub","bandbezug"],"band",["Einbohrband","Einbohrbänder"]],
+ ["verdeckt","Verdeckt liegendes Band","B",["Tectus"],"Band, das bei geschlossener Tür unsichtbar in Türblatt und Zarge eingelassen ist. Für stumpf einschlagende Türen nötig. Bekanntes Beispiel ist das Tectus-Band für unsichtbaren Anschlag, es ist dreidimensional verstellbar.",["band","stumpf"],"verd",["Verdeckt liegendes Band","verdeckte Bänder","verdeckt liegende Bänder","Tectus"]],
+ ["drueck","Drückergarnitur","B",["Drücker","Rosette","Kurzschild"],"Drücker (Klinke) für beide Seiten mit Abdeckungen. Man unterscheidet die Rosettengarnitur (kleine runde Abdeckungen für Drücker und Schlüsselloch), die Schildgarnitur (eine längliche Platte für beides, kurz: Kurzschild) und die Wechselgarnitur (außen fester Knopf).",["schloss","drhoehe","wechsel","schlossnuss"],"drk",["Drückergarnitur","Rundrosette","Kurzschild","Rosettengarnitur","Schildgarnitur"]],
+ ["schloss","Einsteckschloss","B",["Falle","Riegel"],"Schloss, das in eine Ausfräsung im Türblatt gesteckt wird. Die Falle schnappt beim Zudrücken ein, der Riegel fährt beim Abschließen aus. Einsteckschlösser sind nach DIN 18251 genormt. Nach der Sicherungsart unterscheidet man z. B. Buntbartschlösser und Profilzylinderschlösser.",["bb","pz","wc","sb","dorn","din18251","schlossnuss"],"schloss",["Einsteckschloss","Zimmertürschloss"]],
  ["bb","Buntbart (BB)","B",["BB"],"Einfaches Zimmertürschloss mit Bartschlüssel. Nur geringe Sicherheit, Standard bei Zimmertüren.",["schloss","pz"],"bb",["Buntbart","BB"]],
  ["pz","Profilzylinder (PZ)","B",["PZ"],"Austauschbarer Schließzylinder für abschließbare Räume, z. B. Arbeitszimmer oder Hauswirtschaftsraum. Geht ein Schlüssel verloren, wird nur der Zylinder getauscht.",["schloss","bb"],"pz",["Profilzylinder","PZ"]],
  ["wc","WC-Garnitur","B",["WC-Schloss"],"Schloss mit Drehknopf (Olive) innen und Notöffnung außen, damit man im Notfall von außen öffnen kann. Üblich für Bad und WC.",["schloss","drueck"],"wc",["WC-Schloss","WC-Garnitur","WC-Verriegelung"]],
- ["sb","Schließblech","B",[],"Metallteil in der Zarge, in das Falle und Riegel greifen. Lappenschließblech: Standard für Holzzargen. Winkelschließblech: Anpressdruck verstellbar. Mit Dichtungsausgleich: für Zargen mit Dichtung und Schallschutz.",["schloss","ss"],"sb",["Schließblech","Lappenschließblech","Winkelschließblech"]],
+ ["sb","Schließblech","B",[],"Metallteil in der Zarge, in das Falle und Riegel greifen. Für überfälzte Türen nimmt man ein Winkelschließblech mit schmalem Schenkel, das um den Zargenfalz greift. Hat das Türblatt keinen Falz und schlägt stumpf in die Zarge, nimmt man ein Lappenschließblech. Mit Dichtungsausgleich: für Zargen mit Dichtung und Schallschutz.",["schloss","ss"],"sb",["Schließblech","Lappenschließblech","Winkelschließblech"]],
  ["dorn","Dornmaß","B",[],"Abstand von der Vorderkante des Schlosses (Stulp) bis zur Mitte des Drückervierkants. Bei Zimmertüren meist 55 mm.",["schloss","entf"],"",["Dornmaß"]],
  ["entf","Entfernung","B",[],"Abstand zwischen Drückermitte und Mitte des Schlüssellochs. Bei Zimmertürschlössern meist 72 mm, Drückergarnitur und Schloss müssen dazu passen.",["dorn","drueck"],"",[]],
- ["drhoehe","Drückerhöhe","B",[],"Höhe der Drückermitte. Bei Normtüren nach DIN 18101 sind es 1050 mm über OKFF. Bei Glasdrehtüren gibt das Aufmaßblatt 908 mm als Norm für die Drückermitte an.",["drueck","okff","bandauflage"],"",["Drückerhöhe","Drückermitte","Mitte Drücker"]],
+ ["drhoehe","Drückerhöhe","B",[],"Höhe der Drückermitte. Bei Normtüren nach DIN 18101 sind es 1050 mm über OKFF. Bei Glasdrehtüren gibt das Aufmaßblatt 908 mm als Norm für die Drückermitte an. Die Maßtabelle der DIN 18101 gibt dafür das Maß von Oberkante Türfalz bis Mitte Schlossnuss an, z. B. 804 mm bei Baurichtmaß 875 × 1875. Der Schlossriegel liegt etwa 1000 mm über OKFF.",["drueck","okff","bandauflage","schlossnuss","typenmass"],"",["Drückerhöhe","Drückermitte","Mitte Drücker"]],
 
  ["esg","ESG (Einscheiben-Sicherheitsglas)","G",["ESG"],"Thermisch vorgespanntes Glas. Bei Bruch zerfällt es in kleine, stumpfe Krümel. Nach dem Härten kann es nicht mehr geschnitten oder gebohrt werden, deshalb erst genau messen.",["vsg","ganzglas","la"],"",["ESG","Einscheiben-Sicherheitsglas"]],
  ["vsg","VSG (Verbund-Sicherheitsglas)","G",["VSG"],"Zwei oder mehr Scheiben, die mit einer reißfesten Folie verklebt sind. Bei Bruch bleiben die Splitter an der Folie haften.",["esg","la"],"",["VSG","Verbund-Sicherheitsglas"]],
@@ -1809,24 +1826,44 @@ const LEX=[
  ["ss","Schallschutzklasse","G",["SK 1","SK 2"],"Einteilung nach dem Schalldämmmaß in dB: SK 1 etwa 32 dB, SK 2 etwa 37 dB. Erreichbar nur mit schwerem Türblatt, Dichtung in der Zarge und Absenkdichtung. Eine dünne Wand begrenzt den Schallschutz mit.",["db","absenk","mittellage"],"",["Schallschutzklasse","Schallschutz","Schallschutztür"]],
  ["db","Dezibel (dB)","G",["dB"],"Maßeinheit für Schall. 10 dB mehr Dämmung empfindet man etwa als halbe Lautstärke.",["ss"],"",["Dezibel"]],
  ["absenk","Absenkdichtung (Schall-Ex)","G",["Schall-Ex"],"Dichtung in der Unterkante des Türblatts, die sich beim Schließen automatisch auf den Boden absenkt und den Spalt schließt, ohne zu schleifen. Schall-Ex ist ein bekannter Markenname.",["bodenluft","ss"],"boden",["Absenkdichtung","Schall-Ex"]],
- ["klima","Klimaklasse","G",[],"Gibt an, welchen Klimaunterschied zwischen beiden Seiten ein Türblatt aushält, ohne sich zu verziehen (Klasse I bis III, Prüfklima nach RAL-GZ 426, auf Datenblättern z. B. KL1). Innentüren im Wohnbereich brauchen Klasse I, Türen zum kalten Keller oder Treppenhaus eine höhere.",["sperrtuer"],"",["Klimaklasse"]],
+ ["klima","Klimaklasse","G",[],"Gibt an, welchen Klimaunterschied zwischen beiden Seiten ein Türblatt aushält, ohne sich zu verziehen (Klasse I bis III, Prüfklima nach RAL-GZ 426, auf Datenblättern z. B. KL1). Innentüren im Wohnbereich brauchen Klasse I, Türen zum kalten Keller oder Treppenhaus eine höhere. Auch Sperrtüren in Feucht- und Nassräumen brauchen eine höhere Klimaklasse.",["sperrtuer","nass"],"",["Klimaklasse"]],
  ["verstell","Verstellbereich der Zierbekleidung","Z",[],"Die Zierbekleidung lässt sich ein Stück ein- und ausschieben. Laut Herstellerangabe bei 80 bis 100 mm Wand +15/−5 mm, bei dickeren Wänden ±10 mm. Eine 145er Zarge passt also auf Wände von 135 bis 155 mm, ein Sondermaß ist dafür nicht nötig.",["maul","wanddicke","sonder"],"",["Verstellbereich","verstellbar"]],
  ["zkante","Kantenform Zarge","Z",["RU","EC","PR","PM","HK"],"Form der Bekleidungskanten: rund (RU), eckig (EC), profiliert (PR), Primo (PM, sanft gebrochen) oder Hohlkehle (HK, nach innen gewölbt). Sie bestimmt die Optik der Zarge.",["kante","bekl"],"zkante",["Kantenform Zarge"]],
- ["blend","Blendrahmen","Z",[],"Massiver Rahmen, der vor die Wandöffnung gesetzt wird und sie seitlich überdeckt (Einstand ca. 10 mm). Deshalb ist die Wandöffnung kleiner als der Rahmen, z. B. Gesamtbreite − 130 mm und Gesamthöhe − 65 mm.",["einstand","stock","zarge"],"",["Blendrahmen"]],
+ ["blend","Blendrahmen","Z",[],"Massiver Rahmen, der vor die Wandöffnung gesetzt wird und sie seitlich überdeckt (Einstand ca. 10 mm). Deshalb ist die Wandöffnung kleiner als der Rahmen, z. B. Gesamtbreite − 130 mm und Gesamthöhe − 65 mm. Der Blendrahmen hat einen flachen Querschnitt, liegt in einem Mauerfalz oder vor der Mauer und verkleinert den lichten Durchgang nur geringfügig.",["einstand","stock","zarge","umrahm"],"",["Blendrahmen"]],
  ["einstand","Einstand","Z",[],"Maß, um das ein Blendrahmen die Wandöffnung überdeckt, meist etwa 10 mm je Seite.",["blend"],"",["Einstand"]],
- ["stahl","Stahlzarge","Z",["Spiegelbreite","Eckzarge"],"Zarge aus etwa 1,5 mm dickem Stahlblech, die Ecken sind verschweißt. Sehr robust, deshalb in Schulen und öffentlichen Gebäuden üblich. Es gibt sie als Umfassungs-, Block- und Eckzarge. Die Spiegelbreite ist die sichtbare Breite des Profils auf der Wand, z. B. 30 mm. Das Schließblech ist direkt in die Zarge gestanzt.",["zarge","uz"],"",["Stahlzarge","Stahlzargen"]],
- ["dichtung","Zargendichtung","Z",[],"Gummi- oder Kunststoffprofil, das in den Falz der Zarge eingezogen ist. Es dämpft das Zuschlagen und verbessert Schall- und Wärmeschutz. Bei vielen Herstellern ist es Standard.",["ss","falz"],"",["Zargendichtung","Dichtung"]],
+ ["stahl","Stahlzarge","Z",["Spiegelbreite","Eckzarge"],"Zarge aus etwa 1,5 mm dickem Stahlblech, die Ecken sind verschweißt. Sehr robust, deshalb in Schulen und öffentlichen Gebäuden üblich. Es gibt sie als Umfassungs-, Block- und Eckzarge. Die Spiegelbreite ist die sichtbare Breite des Profils auf der Wand, z. B. 30 mm. Das Schließblech ist direkt in die Zarge gestanzt. Stahlzargen werden beim Einbau mit Mörtel ausgefüllt.",["zarge","uz","zrahmen"],"",["Stahlzarge","Stahlzargen"]],
+ ["dichtung","Zargendichtung","Z",["Anschlagdichtung","Futterdichtung"],"Gummi- oder Kunststoffprofil, das in den Falz der Zarge eingezogen ist (Anschlagdichtung, auch Futterdichtung). Das Gegenstück im Türblatt heißt Überschlagdichtung. Hauptaufgabe der Dichtung ist die Dämpfung der Schließgeräusche, außerdem verbessert sie Schall- und Wärmeschutz. Bei vielen Herstellern ist sie Standard.",["ss","falz","ueschlagd","schallweg"],"",["Zargendichtung","Dichtung","Anschlagdichtung","Futterdichtung"]],
  ["gehrung","Gehrung","Z",[],"Eckverbindung, bei der beide Teile im 45°-Winkel geschnitten und zusammengefügt werden, z. B. die Ecken der Bekleidungen oder eines Rahmens.",["bekl"],"",["Gehrung"]],
  ["sturz","Sturzhoch","Z",[],"Die Zarge reicht bis zur Oberkante der Wandöffnung (Sturz). Es gibt kein Oberlicht über der Tür.",["zarge"],"",["sturzhoch"]],
  ["schraeg","Schrägelement","T",[],"Tür für Räume unter einer Dachschräge. Türblatt und Zarge sind oben schräg geschnitten. Bei Typ 1 ist das ganze obere Ende schräg. Solche Türen werden einzeln gefertigt.",["sonder","zarge"],"",["Schrägelement"]],
  ["kuerz","Kürzbarkeit","T",[],"Wie viel ein Türblatt unten gekürzt werden darf, z. B. wenn der Fußboden höher wird. Laut Herstellerdatenblatt bis 50 mm, mit Bodendichtung nur 20 mm, weil die Dichtung im unteren Rahmen sitzt.",["bodenluft","absenk"],"",["Kürzbarkeit","kürzen"]],
- ["falzmass","Falzabmessung","T",[],"Größe des Falzes. Am Türblatt nach DIN 18101 dreiseitig 13 × 25,5 mm, an der Holzzarge z. B. 11 × 29,5 mm, an Stahlzargen 15 × 29 mm. Türblatt- und Zargenfalz müssen zueinander passen.",["falz","zf","falztuer"],"",["Falzabmessung"]],
- ["tbdicke","Türblattdicke","T",[],"Normale Wohnraumtürblätter sind etwa 40 mm dick (z. B. 39,5 mm). Schallschutz- und Sicherheitstüren sind dicker und schwerer.",["flgew","ss"],"",["Türblattdicke"]],
+ ["falzmass","Falzabmessung","T",[],"Größe des Falzes. Am Türblatt nach DIN 18101 dreiseitig 13 × 25,5 mm, an der Holzzarge z. B. 11 × 29,5 mm, an Stahlzargen 15 × 29 mm. Türblatt- und Zargenfalz müssen zueinander passen. Zwischen Türblatt- und Zargenfalz bleiben je Seite etwa 3,5 mm Luft. Vorteil der genormten Falzmaße: Türblatt und Zarge können getrennt gefertigt oder zugekauft und später einfach ausgetauscht werden.",["falz","zf","falztuer","tbfalz","typenmass"],"",["Falzabmessung"]],
+ ["tbdicke","Türblattdicke","T",[],"Nach DIN 18101 sind Türblätter für Falztüren 39 bis 42 mm dick, viele Wohnraumtürblätter etwa 40 mm (z. B. 39,5 mm). Schallschutz- und Sicherheitstüren sind dicker und schwerer.",["flgew","ss"],"",["Türblattdicke"]],
  ["flgew","Flächengewicht","T",[],"Gewicht eines Türblatts pro Quadratmeter: Röhrenspan etwa 16 kg/m², Vollspan etwa 21,5 kg/m². Ein Türblatt 860 × 2110 mm mit Vollspan wiegt also rund 39 kg. Danach richten sich Bänder und Bandanzahl.",["mittellage","band"],"",["Flächengewicht"]],
  ["einhaenge","Einhängefertig","T",[],"Das Türblatt kommt fertig mit Oberfläche, Bändern und Schloss und muss nur noch in die Zarge eingehängt werden.",["band","schloss"],"",["einhängefertig"]],
  ["hpl","Schichtstoff (HPL)","G",["HPL"],"High Pressure Laminate: Dekorpapier und mehrere Kernpapiere, unter hohem Druck und Hitze verpresst. Noch robuster als CPL, deshalb für stark genutzte Türen in Schulen, Büros und Kliniken.",["cpl"],"",["Schichtstoff","HPL"]],
  ["pefc","PEFC / FSC","G",["PEFC","FSC"],"Siegel für Holz und Holzwerkstoffe aus nachhaltiger Forstwirtschaft. Die Zertifizierung gilt für die ganze Lieferkette vom Wald bis zum Händler.",["furnier"],"",["PEFC","FSC"]],
- ["herst","Herstellerangaben","M",["Datenblatt"],"Hersteller geben teils eigene Empfehlungen, die von der DIN-Tabelle abweichen. Beispiel Prüm: Rohbauöffnung 895 statt 885 mm bei Baurichtmaß 875 (Toleranz −10/+20 mm) und 5,5 mm Bodenluft statt 7 mm. Bestellt wird immer nach dem Datenblatt des Herstellers, bei dem man bestellt.",["masstab","rb","bodenluft"],"",["Herstellerangabe","Herstellerangaben","Datenblatt"]]
+ ["herst","Herstellerangaben","M",["Datenblatt"],"Hersteller geben teils eigene Empfehlungen, die von der DIN-Tabelle abweichen. Beispiel Prüm: Rohbauöffnung 895 statt 885 mm bei Baurichtmaß 875 (Toleranz −10/+20 mm) und 5,5 mm Bodenluft statt 7 mm. Bestellt wird immer nach dem Datenblatt des Herstellers, bei dem man bestellt.",["masstab","rb","bodenluft"],"",["Herstellerangabe","Herstellerangaben","Datenblatt"]],
+ ["umrahm","Türumrahmung","Z",["Umrahmung"],"Jede Drehtür braucht eine Umrahmung, an der sie angeschlagen wird. Man unterscheidet vier Arten: Blockrahmentür (Stock), Blendrahmentür, Zargenrahmentür und Futterrahmentür. Bei Wohnungsinnentüren ist die Futterrahmentür mit Umfassungszarge Standard.",["stock","blend","zrahmen","uz"],"",["Türumrahmung","Türumrahmungen"]],
+ ["zrahmen","Zargenrahmen","Z",["Zargenrahmentür"],"Umrahmung mit brettförmigem Querschnitt aus Holzwerkstoff oder Stahl. Sie sitzt auf der Mauerleibung, bündig oder vorstehend, mit Schattenfuge oder Deckleisten. Stahlzargen werden wegen ihrer Robustheit häufig eingesetzt.",["stahl","umrahm","schattennut"],"",["Zargenrahmen","Zargenrahmentür"]],
+ ["ueschlagd","Überschlagdichtung","T",["Flügeldichtung"],"Dichtung im Überschlag des Türblatts, auch Flügeldichtung genannt. Das Gegenstück in der Zarge ist die Anschlagdichtung. Beide dämpfen vor allem die Schließgeräusche.",["dichtung","ueberschlag"],"",["Überschlagdichtung","Flügeldichtung"]],
+ ["anschraub","Einbohrband mit Anschraubtasche","B",["Anschraubtasche"],"Einbohrband, dessen Zargenteil in einer Tasche sitzt, die auf die Zarge geschraubt wird. So muss nur in das Türblatt gebohrt werden.",["band","bandtasche"],"",["Anschraubtasche"]],
+ ["kombi","Kombiband","B",[],"Band aus eingebohrtem und angeschraubtem Teil, dreidimensional verstellbar (Höhe, Seite, Anpressdruck). Typisch für Futterrahmentüren mit Doppeldichtung.",["band","verdeckt"],"",["Kombiband"]],
+ ["lappenband","Lappenband","B",["gekröpft"],"Band mit flachen Lappen, die auf Türblatt und Rahmen geschraubt werden. Gerade Lappenbänder passen zu stumpf einschlagenden Türen, gekröpfte greifen um den Falz einer überfälzten Tür.",["band","stumpf","falztuer"],"",["Lappenband","Lappenbänder"]],
+ ["bandbezug","Bandbezugslinie","B",[],"Waagerechte Bezugslinie am Band, an der Rahmenteil und Flügelteil zusammenstoßen. Auf sie beziehen sich die Bandmaße in DIN 18101, z. B. 241 mm von Oberkante Falz bis zum oberen Band. So passen Türblätter und Zargen verschiedener Hersteller zusammen.",["band","bandauflage","din18101"],"",["Bandbezugslinie"]],
+ ["wechsel","Wechselgarnitur","B",[],"Drückergarnitur mit Drücker innen und festem Knopf außen. Von außen kann die Tür nur mit Schlüssel geöffnet werden. Typisch für Haus- und Wohnungseingangstüren, nicht für Zimmertüren.",["drueck","pz"],"",["Wechselgarnitur"]],
+ ["schlossnuss","Schlossnuss","B",["Drückernuss","Nuss"],"Drehteil im Schloss mit dem Vierkantloch, in das der Vierkantstift des Drückers greift. Ihre Mitte bestimmt die Drückerhöhe: bei Normtüren 1050 mm über OKFF.",["schloss","drhoehe","dorn"],"",["Schlossnuss","Drückernuss"]],
+ ["din18251","DIN 18251","M",["Schlossnorm"],"Norm für Einsteckschlösser. Sie legt unter anderem Dornmaß, Entfernung und Stulp fest, damit Schloss, Drücker und Schließblech verschiedener Hersteller zusammenpassen.",["schloss","dorn","entf"],"",["DIN 18251"]],
+ ["typenmass","Typenmaß (Türblattaußenmaß)","M",[],"So nennt DIN 18101 die Außenmaße des gefälzten Türblatts, z. B. 860 × 1860 bei Baurichtmaß 875 × 1875. Die Normtabelle nennt dazu das Türblattfalzmaß, das Maß von Oberkante Türfalz bis Mitte Schlossnuss und das lichte Zargenmaß im Falz.",["tb","tbfalz","din18101"],"",["Typenmaß","Typenmaße"]],
+ ["tbfalz","Türblattfalzmaß","M",[],"Maß des Türblatts im Falz, also ohne Überschlag, z. B. 834 × 1847 bei Baurichtmaß 875 × 1875. Es muss zum Zargenfalzmaß passen: Zwischen beiden bleiben je Seite etwa 3,5 mm Luft (841 − 834 = 7 mm).",["zf","typenmass","falzmass"],"",["Türblattfalzmaß","Türblattfalzmaße"]],
+ ["etikett","Etikett (Türblatt / Zarge)","M",["Aufkleber"],"Jedes Türblatt und jeder Zargensatz trägt ein Etikett des Herstellers. Darauf stehen Oberfläche bzw. Dekor, Länge × Breite (das Türblattmaß), die Türblattdicke oder bei der Zarge die Wanddicke und die Anschlagrichtung DIN L oder R. Bei der Anlieferung vergleicht man die Etiketten mit der Bestellung, bevor etwas eingebaut wird.",["tb","wanddicke","dinlr"],"etikett",["Etikett","Etiketten"]],
+ ["schallweg","Schallwege","G",[],"Schall geht durch jede Fuge und setzt Bauteile in Schwingung. Bei einer Standard-Zimmertür gibt es fünf typische Wege: durch das Türblatt, durch die Fälze, durch die Bodenfuge, durch das Schlüsselloch und am Maueranschluss. Eine Schallschutztür muss alle fünf schließen: schweres Türblatt, Dichtungen, Absenkdichtung und dicht gefüllte Montagefuge.",["ss","absenk","dichtung","fuge"],"",["Schallwege"]],
+ ["objekt","Objekttür","O",[],"Tür mit Zusatzanforderungen, meist in öffentlichen oder gewerblichen Gebäuden: Schallschutz, Feucht- oder Nassraum, Einbruchhemmung, Brandschutz, Rauchschutz oder Strahlenschutz. In Timos Wohnhaus spielt davon nur der Schallschutz im Homeoffice eine Rolle.",["ss","nass","einbruch","brand","rauch","strahl"],"",["Objekttür","Objekttüren"]],
+ ["nass","Feucht- und Nassraumtür","O",[],"Sperrtüren, die hoher Feuchtigkeit ausgesetzt sind, brauchen eine höhere Klimaklasse.",["klima","objekt"],"",["Nassraum","Feuchtraum"]],
+ ["einbruch","Einbruchhemmung","O",[],"Merkmale einbruchhemmender Türen: Mehrfachverriegelung, Profilzylinderschloss, Sicherheitsschließblech und Bandseitensicherung (Hintergreifhaken).",["pz","sb","objekt"],"",["Einbruchhemmung","einbruchhemmend"]],
+ ["brand","Brandschutz","O",["T30","T60","T90"],"Brandschutztüren müssen selbsttätig schließen. Die Klasse gibt an, wie viele Minuten die Tür ein Feuer mindestens aufhalten muss: T30, T60 oder T90.",["rauch","objekt"],"",["Brandschutz","Brandschutztür"]],
+ ["rauch","Rauchschutz","O",[],"Rauchschutztüren schließen selbsttätig und haben z. B. mechanisch absenkbare Bodendichtungen, damit kein Rauch durchzieht.",["brand","absenk","objekt"],"",["Rauchschutz"]],
+ ["strahl","Strahlenschutz","O",[],"Türen für Röntgenräume haben Bleiplatteneinlagen, die vor Strahlung schützen.",["objekt"],"",["Strahlenschutz"]]
 ];
 const LXI={};LEX.forEach(e=>LXI[e[0]]=e);
 const lxUniq=s=>{const u="x"+(UID++);return s.replace(/id="([^"]+)"/g,'id="$1'+u+'"').replace(/url\(#([^)]+)\)/g,"url(#$1"+u+")")};
@@ -1843,6 +1880,7 @@ function lxImg(k){
   else if(k==="drk")s=`<div class="lxico">${leverIco("rund")}${leverIco("schild")}</div>`;
   else if(k==="schloss")s=`<div class="lxico">${lockIco("bb")}${lockIco("pz")}${lockIco("wc")}</div>`;
   else if(k==="bb"||k==="pz"||k==="wc")s=`<div class="lxico">${lockIco(k)}</div>`;
+  else if(k==="etikett"){d.wd="145";d.raum="Bad";d.pos="3";s=etikettSvg(d)}
   else if(k==="sb")s=`<div class="lxico">${strikeIco("lappen")}${strikeIco("winkel")}${strikeIco("dicht")}</div>`;
   else if(k==="zkante")s=`<div class="lxico">${["rund","eckig","profil","primo","hohl"].map(zkIco).join("")}</div>`;
   else if(k==="kante")s=`<div class="lxico">${kanteIco("rund")}${kanteIco("eckig")}</div>`;
@@ -1859,7 +1897,7 @@ function renderLex(){
   app.innerHTML=`<div class="view">
   ${crumbs([["Startseite","home"],["Lexikon"]])}
   <section class="block"><div class="eyebrow">Nachschlagen</div><h1>Lexikon Innentüren</h1>
-  <p class="lede">${LEX.length} Fachbegriffe rund um Maße, Zargen, Türblätter, Beschläge und Glas. Tipp: Unterstrichene Begriffe im Konfigurator kannst du antippen.</p>
+  <p class="lede">${LEX.length} Fachbegriffe rund um Maße, Zargen, Türblätter, Beschläge, Glas und Objekttüren. Tipp: Unterstrichene Begriffe im Konfigurator kannst du antippen.</p>
   <label class="lxsearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="lxQ" placeholder="Begriff suchen, z. B. Zargenfalz" value="${esc(q&&!LXI[q]?q:"")}" autocomplete="off"></label>
   <div class="lxgroups"><button type="button" class="lxf on" data-f="">Alle</button>${Object.keys(LXG).map(g=>`<button type="button" class="lxf" data-f="${g}">${LXG[g]}</button>`).join("")}</div></section>
   <section class="block lxlist">${items}<p class="help" id="lxNone" hidden>Kein Begriff gefunden. Versuch es mit einem kürzeren Suchwort.</p></section>
@@ -1911,6 +1949,21 @@ function lxLink(root){
 }
 let lxT=0;new MutationObserver(()=>{clearTimeout(lxT);lxT=setTimeout(()=>lxLink(app),60)}).observe(app,{childList:true,subtree:true});
 
+
+/* ---------- Etiketten für Türblatt und Zarge (wie die Herstelleraufkleber) ---------- */
+function etiketten(d){
+  const din="DIN "+(d.din||"?"),pos="Pos. "+(num(d.pos)??"?")+" "+String(d.raum||"").trim();
+  if(d.art==="glas"){const g=GLAS[d.gsize];
+    return [{t:"GLASTÜRBLATT",pos,a:lab("gart",d.gart).toUpperCase(),b:"Länge "+(g?g[6]:"?")+" / Breite "+(g?g[5]:"?")+" / Dicke "+(/10/.test(d.gart)?10:8)+" / "+din,c:"Ganzglas, stumpf · für Zargenfalz "+(g?g[3]+" × "+g[4]:"?")},
+            {t:"BESCHLAGKARTON",pos,a:lab("gdrk",d.gdrk).toUpperCase(),b:lab("gband",d.gband)+" · "+lab("gbandf",d.gbandf),c:lab("gschloss",d.gschloss)+" · "+din}]}
+  const L=num(d.tbH)??"?",B=num(d.tbB)??"?",ofl=(lab("ofl",d.ofl).split(/[-, ]/)[0]+" "+farbe(d)[1]).toUpperCase();
+  const wd=d.wd==="S"?(num(d.wds)??"?")+" S":(d.wd||"?");
+  return [{t:"TÜRBLATT",pos,a:ofl+" · "+(d.bauart==="rahmen"?"RAHMENTÜR":lab("mittel",d.mittel).toUpperCase()),b:"Länge "+L+" / Breite "+B+" / Dicke "+(d.ss!=="none"?42:40)+" / "+din,c:(d.anschlag==="falz"?"Falztür":"stumpf")+", Kante "+d.kante+" · Schloss "+lab("schloss",d.schloss).replace(/ \(.*\)/,"")+(d.la!=="none"?" · "+lab("la",d.la).split(" – ")[0]:"")},
+          {t:"ZARGENSATZ",pos,a:ofl+" · "+lab("futter",d.futter).split(",")[0].toUpperCase(),b:"Länge "+L+" / Breite "+B+" / Wand "+wd+" / "+din,c:(d.anschlag==="falz"?"Falzzarge":"Zarge für stumpfe Tür")+", Kante "+lab("zkante",d.zkante)+" · "+lab("schliess",d.schliess)}]}
+const etBars=t=>{let h=7;const r=[];for(const ch of t)h=(h*31+ch.charCodeAt(0))>>>0;for(let i=0;i<34;i++){h=(h*1103515245+12345)>>>0;r.push(1+(h>>>16)%3)}return r};
+function etikettSvg(d){
+  return `<div class="lxet">`+etiketten(d).map(e=>{let x=242;const bars=etBars(e.b).map((w,i)=>{const r=i%2?"":`<rect x="${x}" y="84" width="${w*.9}" height="20" fill="#222"/>`;x+=w*.9+.6;return r}).join("");
+    return `<svg viewBox="0 0 330 112" role="img" aria-label="Etikett ${e.t}" font-family="Barlow, sans-serif"><rect x=".5" y=".5" width="329" height="111" rx="4" fill="#fff" stroke="#9aa39e"/><rect x=".5" y=".5" width="329" height="20" rx="4" fill="#1f4d3f"/><text x="10" y="15" fill="#fff" font-size="11" font-weight="700">${esc(e.t)}</text><text x="320" y="15" fill="#fff" font-size="9.5" text-anchor="end">${esc(e.pos)}</text><text x="10" y="38" font-size="11" font-weight="700" fill="#222">${esc(e.a)}</text><text x="10" y="58" font-size="12.5" font-weight="700" fill="#222">${esc(e.b)}</text><text x="10" y="76" font-size="9" fill="#555">${esc(e.c)}</text><text x="10" y="102" font-size="8" fill="#888">Schreinerei Altmühltal</text>${e.t==="TÜRBLATT"||e.t==="ZARGENSATZ"||e.t==="GLASTÜRBLATT"?bars:""}</svg>`}).join("")+`</div>`}
 window.__tk={S,buildPdf,check,price,norm,go};
 
 /* Eingangstür: Die Seite liegt hinter einer Tür, durch die man eintritt */
