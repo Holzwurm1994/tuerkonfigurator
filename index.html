@@ -1014,7 +1014,7 @@ function renderLehrer(){
   <p class="lede">Nur mit deinem Lehrerkonto sichtbar. „Lehrerzugang beenden“ meldet dich ab. Ohne Bedienung meldet sich das Gerät automatisch ab.</p>
   <div class="row2"><button class="btn" id="lPdf">Musterlösung als PDF</button><button class="btn sec" id="lOut">Lehrerzugang beenden</button></div><button class="btn sec block" id="lQr" style="margin-top:10px">QR-Code zum Beamen</button><div id="pdfMsg"></div></section>
   ${lehrerGeraeteHtml()}
-  <section class="block card" style="display:grid;gap:10px"><div class="eyebrow">Infophase</div><h3>Freischaltcode für Teil 2: <span class="p2code" id="p2Cur">…</span></h3><div id="p2Box"></div><p class="help">Teil 1: Positionen, Maße, Zarge, Türblatt. Danach erscheint bei den Schülern „Stopp – Infophase“. Diesen Code nach der Infophase an die Tafel schreiben. Groß-/Kleinschreibung egal. Er wird auf dem Server geprüft und steht nicht im Quelltext.</p><p class="help">Dieses Gerät: <b>${S.p2?"Teil 2 freigeschaltet":"Teil 1"}</b></p><button class="btn sec" id="lP2">${S.p2?"Dieses Gerät auf Teil 1 zurücksetzen":"Teil 2 auf diesem Gerät freischalten"}</button></section>
+  <section class="block card" style="display:grid;gap:10px"><div class="eyebrow">Infophase</div><h3>Freischaltcode für Teil 2: <span class="p2code" id="p2Cur">…</span></h3><div id="p2Box"></div><p class="help">Teil 1: Positionen, Maße, Zarge, Türblatt. Danach erscheint bei den Schülern „Stop – Infophase“. Diesen Code nach der Infophase an die Tafel schreiben. Groß-/Kleinschreibung egal. Er wird auf dem Server geprüft und steht nicht im Quelltext.</p><p class="help">Dieses Gerät: <b>${S.p2?"Teil 2 freigeschaltet":"Teil 1"}</b></p><button class="btn sec" id="lP2">${S.p2?"Dieses Gerät auf Teil 1 zurücksetzen":"Teil 2 auf diesem Gerät freischalten"}</button></section>
   <section class="block"><h2>Futtertüren (7 Positionen)</h2><div class="tscroll"><table class="bm"><thead><tr><th>Pos.</th><th>Raum</th><th>Rohbau B × H</th><th>Wand</th><th>DIN</th><th>Baurichtmaß</th><th>Türblatt</th><th>Zargenfalz</th><th>Bekleidung außen</th><th>Futter außen</th><th>Lichter Durchgang</th><th>Kundenwunsch / Besonderheit</th></tr></thead><tbody>
   ${R.map(r=>`<tr><td>${r.pos}</td><td>${r.raum}</td><td class="n">${r.rb}</td><td class="n">${r.wd}</td><td>${r.din}</td><td class="n">${r.brm}</td><td class="n">${r.tb}</td><td class="n">${r.zf}</td><td class="n">${r.bk}</td><td class="n">${r.fa}</td><td class="n">${r.ld}</td><td>${r.wish}</td></tr>`).join("")}
   </tbody></table></div>
@@ -1756,7 +1756,7 @@ async function savePdf(){
     else if(c==="rate_limited")pdfMsg("warn","Bitte kurz warten und noch einmal tippen.");
     else pdfMsg("warn","Speichern ist hier nicht möglich. Mach bitte einen Screenshot dieser Bestätigung und gib ihn ab.")}
 }
-(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 23.11.2026, 20:13";f.appendChild(p);const dv=document.createElement("p");dv.className="ver";dv.id="devTag";f.appendChild(dv);devTagUpd();let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
+(function(){const f=document.querySelector("footer.site .in");if(f){const p=document.createElement("p");p.className="ver";p.textContent="Stand: 24.11.2026, 10:30";f.appendChild(p);const dv=document.createElement("p");dv.className="ver";dv.id="devTag";f.appendChild(dv);devTagUpd();let n=0,t=0;p.addEventListener("click",()=>{const now=Date.now();n=now-t<900?n+1:1;t=now;if(n>=5){n=0;askPin()}})}
   const hc=()=>{if(location.hash==="#lehrer"){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}askPin()}};window.addEventListener("hashchange",hc);hc()})();
 /* ---------- Herstellerunterlagen: Maßskizzen, Glastür-Aufmaß, Aufmaßblatt ---------- */
 function dimH(x1,x2,y,txt,c,dash){const w=Math.max(26,txt.length*5.2+10),cx=(x1+x2)/2;
@@ -2143,8 +2143,8 @@ function renderStopp(){
   app.innerHTML=`<div class="view">
   ${crumbs([["Startseite","home"],["Innentüren","produkte"],["Infophase"]])}
   <section class="block stopp">
-    <svg class="stopsign" viewBox="0 0 120 120" role="img" aria-label="Stoppschild"><polygon points="35,4 85,4 116,35 116,85 85,116 35,116 4,85 4,35" fill="#c0392b" stroke="#fff" stroke-width="5"/><text x="60" y="70" text-anchor="middle" font-size="27" font-weight="800" fill="#fff" font-family="Barlow, sans-serif" letter-spacing="1">STOPP</text></svg>
-    <h1>Stopp – Infophase</h1>
+    <svg class="stopsign" viewBox="0 0 120 120" role="img" aria-label="Stoppschild: Stop"><polygon points="35,4 85,4 116,35 116,85 85,116 35,116 4,85 4,35" fill="#c0392b" stroke="#fff" stroke-width="5"/><text x="60" y="70" text-anchor="middle" font-size="27" font-weight="800" fill="#fff" font-family="Barlow, sans-serif" letter-spacing="2">STOP</text></svg>
+    <h1>Stop – Infophase</h1>
     <p class="lede">Teil 1 ist geschafft. Jetzt geht es um die <b>Beschläge</b>: Bänder, Schlösser, Schließbleche, Drücker und Dichtungen. Leg das Handy kurz zur Seite und hör zu.</p>
     <p class="help">Weiter geht es mit dem Freischaltcode, den deine Lehrkraft an die Tafel schreibt. Bis dahin kannst du im Lexikon nachschlagen oder deine Positionen noch einmal prüfen.</p>
     ${scodeRemind()}
